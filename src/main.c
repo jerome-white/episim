@@ -1,5 +1,4 @@
 #include <stdlib.h>
-
 #include <ross.h>
 
 #include "model.h"
@@ -26,7 +25,7 @@ const tw_optdef options[] = {
   TWOPT_UINT("tiles", __tiles, "Number of homes"),
   TWOPT_CHAR("log-directory", __log_dir, "Output file for final reporting"),
   TWOPT_CHAR("config", __config, "Configuration file"),
-  TWOPT_STIME("duration", __duration, "Duration of simlulation (days)"),
+  TWOPT_DOUBLE("duration", __duration, "Duration of simlulation (days)"),
 
   TWOPT_END()
 };
