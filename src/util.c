@@ -40,7 +40,7 @@ struct population population_setup(const char *path,
     if (read < 0) {
       break;
     }
-    if (!lineno) {
+    if (!lineno) { // assume there's a header
       continue;
     }
 
