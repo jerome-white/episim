@@ -10,9 +10,7 @@
 struct population population_setup(const char *path,
 				   struct state *s,
 				   uint64_t nsize) {
-  uint8_t
-    i,
-    index;
+  uint8_t i;
   uint16_t
     lineno,
     wordno;
@@ -30,6 +28,7 @@ struct population population_setup(const char *path,
   struct population
     p_totals,
     p_counts;
+  struct transition *trans;
   
   fp = fopen(path, "r");
   if (fp == NULL) {
@@ -49,10 +48,9 @@ struct population population_setup(const char *path,
       continue;
     }
 
-    index = -1;
-
-    word = strtok(line, sep);
-    for (wordno = 0; word; wordno++) {
+    for (wordno = 0, trans = NULL, word = strtok(line, sep);
+	 word;
+	 word = strtok(NULL, sep)) {
       switch (wordno) {
       case 0: // source
 	id = atoll(word);
@@ -66,23 +64,24 @@ struct population population_setup(const char *path,
 	}
 	break;
       case 1: // target
-	index = atoi(word);
+	trans = &s->movement[atoi(word)];
 	break;
       case 2: // movement mean
-	s->movement[index].mean = atof(word);
+	trans->mean = atof(word);
 	break;
-      case 3: // movement mean
-	s->movement[index].deviation = atof(word);
+      case 3: // movement deviation
+	trans->deviation = atof(word);
 	break;
       case 4: // population
 	p_totals.susceptible += atof(word);
 	p_counts.susceptible += 1;
 	break;
+      case 5: // distance
+	trans->distance = atof(word);
+	break;
       default:
 	break;
       }
-      
-      word = strtok(NULL, sep);
     }
   }
   

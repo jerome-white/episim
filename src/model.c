@@ -47,13 +47,13 @@ void forward_event_handler(struct state *s,
 			   struct message *m,
 			   tw_lp *lp) {
   int i;
-  unsigned int calls;
+  unsigned int norm_calls;
   long double people;
   tw_stime ts;
   tw_event *event;
-  struct transition trans;
-  struct population travelers;
   struct message *msg;
+  struct population travelers;
+  struct transition *trans;
 
   memset((tw_bf *)bf, 0, sizeof(tw_bf));
 
@@ -76,19 +76,22 @@ void forward_event_handler(struct state *s,
     memset((struct population *)&travelers, 0, sizeof(struct population));
 
     for (i = 0; i < __tiles; i++) {
-      calls = 0;
-      trans = s->movement[i];
-      people = tw_rand_normal_sd(lp->rng, trans.mean, trans.deviation, &calls);
+      norm_calls = 0;
+      trans = &s->movement[i];
+      people = tw_rand_normal_sd(lp->rng,
+				 trans->mean,
+				 trans->deviation,
+				 &norm_calls);
       travelers.susceptible = ROSS_MIN(s->people.susceptible, people);
       if (travelers.susceptible > 0) {
 	s->people = population_decrease(&s->people, &travelers);
 
-	ts = tw_rand_exponential(lp->rng, HUMAN_TRAVEL_TIME);
+	ts = tw_rand_exponential(lp->rng,trans->distance / HUMAN_TRAVEL_SPEED);
 	event = tw_event_new(i, ts, lp);
 
 	msg = (struct message *)tw_event_data(event);
 	msg->etype = HUMAN_ARRIVAL_EVENT;
-	msg->rng_calls = calls + 1;
+	msg->rng_calls = norm_calls + 1;
 	msg->people = travelers;
 
 	tw_event_send(event);
