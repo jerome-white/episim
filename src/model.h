@@ -49,14 +49,8 @@ struct message {
 };
 
 void init(struct state *, tw_lp *);
-void forward_event_handler(struct state *,
-			      tw_bf *,
-			      struct message *,
-			      tw_lp *);
-void reverse_event_handler(struct state *,
-                               tw_bf *,
-                               struct message *,
-                               tw_lp *);
+void forward_event_handler(struct state *, tw_bf *, struct message *, tw_lp *);
+void reverse_event_handler(struct state *, tw_bf *, struct message *, tw_lp *);
 void uninit(struct state *, tw_lp *);
 tw_peid mapping(tw_lpid);
 
