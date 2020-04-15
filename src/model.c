@@ -43,9 +43,9 @@ void init(struct state *s, tw_lp *lp) {
 }
 
 void forward_event_handler(struct state *s,
-			      tw_bf *bf,
-			      struct message *m,
-			      tw_lp *lp) {
+			   tw_bf *bf,
+			   struct message *m,
+			   tw_lp *lp) {
   int i;
   long double people;
   tw_stime ts;
@@ -105,9 +105,9 @@ void forward_event_handler(struct state *s,
 }
 
 void reverse_event_handler(struct state *s,
-			       tw_bf *bf,
-			       struct message *m,
-			       tw_lp *lp) {
+			   tw_bf *bf,
+			   struct message *m,
+			   tw_lp *lp) {
   int i;
 
   for (i = 0; i < m->rng_calls; i++) {
