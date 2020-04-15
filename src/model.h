@@ -15,8 +15,8 @@
 #define HOUR   (MINUTE * 60.0)
 #define DAY    (HOUR * 24.0)
 
-#define HUMAN_TRAVEL_TIME (MINUTE * 40)
-#define HUMAN_STAY_TIME   (HOUR * 8)
+#define HUMAN_TRAVEL_SPEED 20
+#define HUMAN_STAY_TIME    (HOUR * 8)
 
 tw_stime __duration;
 uint64_t __tiles;
@@ -32,6 +32,7 @@ enum event {
 struct transition {
   double mean;
   double deviation;
+  double distance;
 };
 
 struct population {
