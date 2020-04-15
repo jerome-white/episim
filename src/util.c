@@ -27,7 +27,9 @@ struct population population_setup(const char *path,
     *sep = ",",
     *word;
   FILE *fp;
-  struct population people;
+  struct population
+    p_totals,
+    p_counts;
   
   fp = fopen(path, "r");
   if (fp == NULL) {
@@ -35,7 +37,8 @@ struct population population_setup(const char *path,
     exit(EXIT_FAILURE);
   }
 
-  memset((struct population *)&people, 0, sizeof(struct population));
+  memset((struct population *)&p_totals, 0, sizeof(struct population));
+  memset((struct population *)&p_counts, 0, sizeof(struct population));
   
   for (lineno = 0; ; lineno++) {
     read = getline(&line, &len, fp);
@@ -72,8 +75,8 @@ struct population population_setup(const char *path,
 	s->movement[index].deviation = atof(word);
 	break;
       case 4: // population
-	people_total += atof(word);
-	people_n += 1;
+	p_totals.susceptible += atof(word);
+	p_counts.susceptible += 1;
 	break;
       default:
 	break;
@@ -85,21 +88,45 @@ struct population population_setup(const char *path,
   
   fclose(fp);
 
-  people.susceptible = people_total / people_n;
-
-  return people;
+  return population_normalize(&p_totals, &p_counts);
 }
 
-void population_increase(struct population *target,
-			 const struct population *source) {
-  target->susceptible += source->susceptible;
-  target->infected    += source->infected;
-  target->recovered   += source->recovered;
+struct population population_increase(const struct population *lhs,
+				      const struct population *rhs) {
+  struct population p;
+
+  p.susceptible = lhs->susceptible + rhs->susceptible;
+  p.infected    = lhs->infected + rhs->infected;
+  p.recovered   = lhs->recovered + rhs->recovered;
+
+  return p;
 }
 
-void population_decrease(struct population *target,
-			 const struct population *source) {
-  target->susceptible -= source->susceptible;
-  target->infected    -= source->infected;
-  target->recovered   -= source->recovered;
+struct population population_decrease(const struct population *lhs,
+				      const struct population *rhs) {
+  struct population p;
+
+  p.susceptible = lhs->susceptible - rhs->susceptible;
+  p.infected    = lhs->infected - rhs->infected;
+  p.recovered   = lhs->recovered - rhs->recovered;
+
+  return p;
+}
+
+struct population population_normalize(const struct population *lhs,
+				       const struct population *rhs) {
+  struct population p;
+  memset((struct population *)&p, 0, sizeof(struct population));
+
+  if (rhs->susceptible != 0) {
+    p.susceptible = lhs->susceptible / rhs->susceptible;
+  }
+  if (rhs->infected != 0) {
+    p.infected = lhs->infected - rhs->infected;
+  }
+  if (rhs->recovered != 0) {
+    p.recovered = lhs->recovered - rhs->recovered;
+  }
+
+  return p;
 }
