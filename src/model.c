@@ -10,7 +10,6 @@ void init(struct state *s, tw_lp *lp) {
   int64_t people;
 
   memset((struct state *)s, 0, sizeof(struct state));
-
   s->id = lp->gid;
 
   // output log
@@ -35,6 +34,7 @@ void init(struct state *s, tw_lp *lp) {
 
   lp_log("INIT", lp, s, NULL);
 
+  human_departure_events(s, lp);
   return;
 }
 
@@ -71,31 +71,7 @@ void forward_event_handler(struct state *s,
     lp_log("HUMAN_ARRIVAL_EVENT", lp, s, m);
     break;
   case HUMAN_DEPARTURE_EVENT:
-    memset((struct population *)&travelers, 0, sizeof(struct population));
-
-    for (i = 0; i < __tiles; i++) {
-      norm_calls = 0;
-      trans = &s->movement[i];
-      people = tw_rand_normal_sd(lp->rng,
-				 trans->mean,
-				 trans->deviation,
-				 &norm_calls);
-      travelers.susceptible = ROSS_MIN(s->people.susceptible, people);
-      if (travelers.susceptible > 0) {
-	s->people = population_decrease(&s->people, &travelers);
-
-	ts = tw_rand_exponential(lp->rng,trans->distance / HUMAN_TRAVEL_SPEED);
-	event = tw_event_new(i, ts, lp);
-
-	msg = (struct message *)tw_event_data(event);
-	msg->etype = HUMAN_ARRIVAL_EVENT;
-	msg->rng_calls = norm_calls + 1;
-	msg->people = travelers;
-
-	tw_event_send(event);
-      }
-    }
-
+    human_departure_events(s, lp);
     break;
   default:
     tw_error(TW_LOC,

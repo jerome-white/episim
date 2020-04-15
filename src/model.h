@@ -73,4 +73,6 @@ void lp_log(const char *,
 	    const struct state *,
 	    const struct message *);
 
+int human_departure_events(struct state *, tw_lp *);
+
 #endif // MODEL_H
