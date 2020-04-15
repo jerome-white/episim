@@ -4,6 +4,7 @@ INCLUDE_DIRECTORIES(${ROSS_SOURCE_DIR})
 SET(epi_srcs
   main.c
   model.c
+  population.c
   util.c
 )
 
