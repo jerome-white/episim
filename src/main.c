@@ -6,7 +6,7 @@
 tw_lptype handlers[] = {
   {
     (init_f) init,
-    (pre_run_f) NULL,
+    (pre_run_f) pre_run,
     (event_f) forward_event_handler,
     (revent_f) reverse_event_handler,
     (commit_f) NULL,

@@ -34,7 +34,12 @@ void init(struct state *s, tw_lp *lp) {
 
   lp_log("INIT", lp, s, NULL);
 
+  return;
+}
+
+void pre_run(struct state *s, tw_lp *lp) {
   human_departure_events(s, lp);
+
   return;
 }
 
