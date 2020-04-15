@@ -14,7 +14,7 @@ void init(struct state *s, tw_lp *lp) {
   s->id = lp->gid;
 
   // output log
-  i = snprintf(fname, FNAME_LENGTH, "%s/tile-lp%lu.log", __log_dir, lp->gid);
+  i = snprintf(fname, FNAME_LENGTH, "%s/tile-%05lu.log", __log_dir, lp->gid);
   if (i >= FNAME_LENGTH) {
     tw_error(TW_LOC, "Unable to create LP log file", strerror(errno));
     exit(EXIT_FAILURE);
@@ -24,12 +24,6 @@ void init(struct state *s, tw_lp *lp) {
     tw_error(TW_LOC, "fopen error (%s): logging disabled", strerror(errno));
     exit(EXIT_FAILURE);
   }
-  fprintf(s->log,
-	  "timestamp,"
-	  "event,"
-	  "source,"
-	  "destination,"
-	  "value\n");
 
   // population setup
   s->movement = (struct transition *)calloc(sizeof(struct transition),__tiles);
@@ -38,6 +32,8 @@ void init(struct state *s, tw_lp *lp) {
     exit(EXIT_FAILURE);
   }
   s->people = population_setup(__config, s, __tiles);
+
+  lp_log("INIT", lp, s, NULL);
 
   return;
 }
@@ -71,6 +67,8 @@ void forward_event_handler(struct state *s,
     msg->people = m->people;
 
     tw_event_send(event);
+
+    lp_log("HUMAN_ARRIVAL_EVENT", lp, s, m);
     break;
   case HUMAN_DEPARTURE_EVENT:
     memset((struct population *)&travelers, 0, sizeof(struct population));

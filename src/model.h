@@ -2,10 +2,9 @@
 #define MODEL_H
 
 #include <stdint.h>
-
 #include <ross.h>
 
-#define FNAME_LENGTH 32
+#define FNAME_LENGTH 64
 #define PATH_SEPARATOR "/"
 
 /*
@@ -67,5 +66,11 @@ struct population population_decrease(const struct population *,
 				      const struct population *);
 struct population population_normalize(const struct population *,
 				       const struct population *);
+
+void lp_log_header(tw_lp *, const struct state *);
+void lp_log(const char *,
+	    tw_lp *,
+	    const struct state *,
+	    const struct message *);
 
 #endif // MODEL_H
