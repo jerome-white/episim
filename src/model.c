@@ -32,8 +32,8 @@ void init(struct state *s, tw_lp *lp) {
 	  "value\n");
 
   // population setup
-  s->transitions = (double *)calloc(sizeof(double), __tiles);
-  if (s->transitions == NULL) {
+  s->movement = (struct transition *)calloc(sizeof(struct transition),__tiles);
+  if (s->movement == NULL) {
     tw_error(TW_LOC, "malloc error: %s", strerror(errno));
     exit(EXIT_FAILURE);
   }
@@ -47,9 +47,11 @@ void forward_event_handler(struct state *s,
 			   struct message *m,
 			   tw_lp *lp) {
   int i;
+  unsigned int calls;
   long double people;
   tw_stime ts;
   tw_event *event;
+  struct transition trans;
   struct population travelers;
   struct message *msg;
 
@@ -74,8 +76,10 @@ void forward_event_handler(struct state *s,
     memset((struct population *)&travelers, 0, sizeof(struct population));
 
     for (i = 0; i < __tiles; i++) {
-      people = roundl(s->people.susceptible * s->transitions[i]);
-      travelers.susceptible = ROSS_MIN(s->people.susceptible,(uint64_t)people);
+      calls = 0;
+      trans = s->movement[i];
+      people = tw_rand_normal_sd(lp->rng, trans.mean, trans.deviation, &calls);
+      travelers.susceptible = ROSS_MIN(s->people.susceptible, people);
       if (travelers.susceptible > 0) {
 	population_decrease(&s->people, &travelers);
 
@@ -84,7 +88,7 @@ void forward_event_handler(struct state *s,
 
 	msg = (struct message *)tw_event_data(event);
 	msg->etype = HUMAN_ARRIVAL_EVENT;
-	msg->rng_calls = 1;
+	msg->rng_calls = calls + 1;
 	msg->people = travelers;
 
 	tw_event_send(event);
@@ -133,8 +137,8 @@ void reverse_event_handler(struct state *s,
 }
 
 void uninit(struct state *s, tw_lp *lp) {
-  if (s->transitions != NULL) {
-    free(s->transitions);
+  if (s->movement != NULL) {
+    free(s->movement);
   }
   if (s->log != NULL) {
     fclose(s->log);

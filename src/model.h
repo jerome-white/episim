@@ -29,22 +29,27 @@ enum event {
   /* HUMAN_INTERACTION_EVENT, */
 };
 
+struct transition {
+  double mean;
+  double deviation;
+};
+
 struct population {
-  uint64_t susceptible;
-  uint64_t infected;
-  uint64_t recovered;
+  double susceptible;
+  double infected;
+  double recovered;
 };
 
 struct state {
   tw_lpid id;
-  double *transitions;
   FILE *log;
   struct population people;
+  struct transition *movement;
 };
 
 struct message {
+  long rng_calls;
   enum event etype;
-  uint8_t rng_calls;
   struct population people;
 };
 
