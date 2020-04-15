@@ -44,13 +44,12 @@ struct population population_setup(const char *path,
     if (read < 0) {
       break;
     }
-    if (!lineno) { // assume there's a header
+    if (lineno == 0) { // assume there's a header
       continue;
     }
 
-    for (wordno = 0, trans = NULL, word = strtok(line, sep);
-	 word;
-	 wordno++, word = strtok(NULL, sep)) {
+    word = strtok(line, sep);
+    for (wordno = 0, trans = NULL; word != NULL; wordno++) {
       switch (wordno) {
       case 0: // source
 	id = atoll(word);
@@ -63,7 +62,7 @@ struct population population_setup(const char *path,
 	  continue;
 	}
 	break;
-      case 1: // target
+      case 1: // destination
 	trans = &s->movement[atoi(word)];
 	break;
       case 2: // movement mean
@@ -82,6 +81,7 @@ struct population population_setup(const char *path,
       default:
 	break;
       }
+      word = strtok(NULL, sep);
     }
   }
   
