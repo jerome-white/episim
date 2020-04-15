@@ -17,7 +17,9 @@ struct population population_setup(const char *path,
     lineno,
     wordno;
   uint64_t id;
-  double prob;
+  double
+    people_total,
+    people_n;
   size_t len = 0;
   ssize_t read;  
   char
@@ -63,14 +65,15 @@ struct population population_setup(const char *path,
       case 1: // target
 	index = atoi(word);
 	break;
-      case 2: // probability
-	prob = atof(word);
+      case 2: // movement mean
+	s->movement[index].mean = atof(word);
 	break;
-      case 3: // population
-	assert(people.susceptible == 0 || people.susceptible == atoll(word));
-	if (people.susceptible == 0) {
-	  people.susceptible = atoll(word);
-	}
+      case 3: // movement mean
+	s->movement[index].deviation = atof(word);
+	break;
+      case 4: // population
+	people_total += atof(word);
+	people_n += 1;
 	break;
       default:
 	break;
@@ -78,13 +81,11 @@ struct population population_setup(const char *path,
       
       word = strtok(NULL, sep);
     }
-
-    if (index > 0) {
-      s->transitions[index] = prob;
-    }
   }
   
   fclose(fp);
+
+  people.susceptible = people_total / people_n;
 
   return people;
 }
