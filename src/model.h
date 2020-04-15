@@ -60,7 +60,11 @@ void uninit(struct state *, tw_lp *);
 tw_peid mapping(tw_lpid);
 
 struct population population_setup(const char *, struct state *, uint64_t);
-void population_increase(struct population *, const struct population *);
-void population_decrease(struct population *, const struct population *);
+struct population population_increase(const struct population *,
+				      const struct population *);
+struct population population_decrease(const struct population *,
+				      const struct population *);
+struct population population_normalize(const struct population *,
+				       const struct population *);
 
 #endif // MODEL_H

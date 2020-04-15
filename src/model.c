@@ -60,7 +60,7 @@ void forward_event_handler(struct state *s,
   switch (m->etype) {
   case HUMAN_ARRIVAL_EVENT:
     msg = (struct message *)tw_event_data(event);
-    population_increase(&s->people, &m->people);
+    s->people = population_increase(&s->people, &m->people);
 
     ts = tw_rand_exponential(lp->rng, HUMAN_STAY_TIME);
     event = tw_event_new(lp->gid, ts, lp);
@@ -81,7 +81,7 @@ void forward_event_handler(struct state *s,
       people = tw_rand_normal_sd(lp->rng, trans.mean, trans.deviation, &calls);
       travelers.susceptible = ROSS_MIN(s->people.susceptible, people);
       if (travelers.susceptible > 0) {
-	population_decrease(&s->people, &travelers);
+	s->people = population_decrease(&s->people, &travelers);
 
 	ts = tw_rand_exponential(lp->rng, HUMAN_TRAVEL_TIME);
 	event = tw_event_new(i, ts, lp);
