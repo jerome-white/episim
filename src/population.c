@@ -121,10 +121,10 @@ struct population population_normalize(const struct population *lhs,
     p.susceptible = lhs->susceptible / rhs->susceptible;
   }
   if (rhs->infected != 0) {
-    p.infected = lhs->infected - rhs->infected;
+    p.infected = lhs->infected / rhs->infected;
   }
   if (rhs->recovered != 0) {
-    p.recovered = lhs->recovered - rhs->recovered;
+    p.recovered = lhs->recovered / rhs->recovered;
   }
 
   return p;
