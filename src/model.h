@@ -23,7 +23,7 @@ uint64_t __tiles;
 char __config[FNAME_LENGTH];
 char __log_dir[FNAME_LENGTH];
 
-enum event {
+enum event_t {
   HUMAN_ARRIVAL_EVENT,
   HUMAN_DEPARTURE_EVENT,
   HUMAN_INTERACTION_EVENT,
@@ -50,7 +50,7 @@ struct state {
 
 struct message {
   long rng_calls;
-  enum event etype;
+  enum event_t event;
   struct population people;
 };
 

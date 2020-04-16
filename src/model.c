@@ -52,7 +52,7 @@ void pre_run(struct state *s, tw_lp *lp) {
     event = tw_event_new(lp->gid, ts, lp);
 
     msg = (struct message *)tw_event_data(event);
-    msg->etype = HUMAN_DEPARTURE_EVENT;
+    msg->event = HUMAN_DEPARTURE_EVENT;
     msg->rng_calls = 1;
     msg->people = travelers;
 
@@ -75,7 +75,7 @@ void forward_event_handler(struct state *s,
 
   memset((tw_bf *)bf, 0, sizeof(tw_bf));
 
-  switch (m->etype) {
+  switch (m->event) {
   case HUMAN_ARRIVAL_EVENT:
     msg = (struct message *)tw_event_data(event);
     s->people = population_increase(&s->people, &m->people);
@@ -84,7 +84,7 @@ void forward_event_handler(struct state *s,
     event = tw_event_new(lp->gid, ts, lp);
 
     msg = (struct message *)tw_event_data(event);
-    msg->etype = HUMAN_DEPARTURE_EVENT;
+    msg->event = HUMAN_DEPARTURE_EVENT;
     msg->rng_calls = 1;
     msg->people = m->people;
 
@@ -105,7 +105,7 @@ void forward_event_handler(struct state *s,
     event = tw_event_new(lpid, ts, lp);
 
     msg = (struct message *)tw_event_data(event);
-    msg->etype = HUMAN_ARRIVAL_EVENT;
+    msg->event = HUMAN_ARRIVAL_EVENT;
     msg->rng_calls = rng_calls;
     msg->people = m->people;
 
@@ -115,7 +115,7 @@ void forward_event_handler(struct state *s,
     tw_error(TW_LOC,
 	     "[%d APP_ERROR]: Invalid method name: (%d)",
 	     lp->id,
-	     m->etype);
+	     m->event);
     exit(EXIT_FAILURE);
     break;
   }
@@ -133,7 +133,7 @@ void reverse_event_handler(struct state *s,
     tw_rand_reverse_unif(lp->rng);
   }
 
-  switch (m->etype) {
+  switch (m->event) {
   case HUMAN_ARRIVAL_EVENT:
     population_decrease(&s->people, &m->people);
     break;
@@ -144,7 +144,7 @@ void reverse_event_handler(struct state *s,
     tw_error(TW_LOC,
 	     "[%d APP_ERROR]: Invalid method name: (%d)",
 	     lp->id,
-	     m->etype);
+	     m->event);
     exit(EXIT_FAILURE);
   }
 
