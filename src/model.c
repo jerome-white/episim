@@ -47,14 +47,9 @@ void forward_event_handler(struct state *s,
 			   tw_bf *bf,
 			   struct message *m,
 			   tw_lp *lp) {
-  int i;
-  unsigned int norm_calls;
-  long double people;
   tw_stime ts;
   tw_event *event;
   struct message *msg;
-  struct population travelers;
-  struct transition *trans;
 
   memset((tw_bf *)bf, 0, sizeof(tw_bf));
 

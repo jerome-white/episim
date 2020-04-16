@@ -34,10 +34,9 @@ void lp_log(const char *etype,
 }
 
 int human_departure_events(struct state *s, tw_lp *lp) {
-  int i, sent;
-  unsigned int norm_calls;
-  double travel_time;
-  long double people;
+  unsigned int norm_calls, sent;
+  double speed, people;
+  tw_lpid i;
   tw_stime ts;
   tw_event *event;
   struct message *msg;
