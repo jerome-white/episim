@@ -5,6 +5,31 @@
 
 #include "model.h"
 
+tw_lpid transition_select(tw_lp *lp,
+			  const struct transition *tr,
+			  unsigned int *rng_calls) {
+  tw_lpid i;
+  int remaining;
+  unsigned int weight;
+
+  weight = 0;
+  for (i = 0; i < __tiles; i++) {
+    weight += tr[i].mean;
+  }
+
+  remaining = tw_rand_unif(lp->rng) * weight;
+  *rng_calls += 1;
+
+  for (i = 0; i < __tiles; i++) {
+    remaining -= weight;
+    if (remaining < 0) {
+	return i;
+      }
+  }
+
+  tw_error(TW_LOC, "Unable to perform selection");
+}
+
 void lp_log_header(tw_lp *lp, const struct state *s) {
   tw_output(lp,
 	    "timestamp,"
@@ -36,7 +61,7 @@ void lp_log(const char *etype,
 int human_departure_events(struct state *s, tw_lp *lp) {
   unsigned int norm_calls, sent;
   double speed, people;
-  tw_lpid i;
+  tw_lpid lpid;
   tw_stime ts;
   tw_event *event;
   struct message *msg;
@@ -45,9 +70,9 @@ int human_departure_events(struct state *s, tw_lp *lp) {
 
   memset((struct population *)&travelers, 0, sizeof(struct population));
 
-  for (i = 0, sent = 0; i < __tiles; i++) {
+  for (lpid = 0, sent = 0; lpid < __tiles; lpid++) {
     norm_calls = 0;
-    movement = &s->movement[i];
+    movement = &s->movement[lpid];
     people = tw_rand_normal_sd(lp->rng,
 			       movement->mean,
 			       movement->deviation,
@@ -58,7 +83,7 @@ int human_departure_events(struct state *s, tw_lp *lp) {
 
       speed = tw_rand_exponential(lp->rng, HUMAN_TRAVEL_SPEED);
       ts = tw_rand_exponential(lp->rng, movement->distance / speed);
-      event = tw_event_new(i, ts, lp);
+      event = tw_event_new(lpid, ts, lp);
 
       msg = (struct message *)tw_event_data(event);
       msg->etype = HUMAN_ARRIVAL_EVENT;

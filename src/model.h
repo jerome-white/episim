@@ -2,6 +2,7 @@
 #define MODEL_H
 
 #include <stdint.h>
+#include <stdbool.h>
 #include <ross.h>
 
 #define FNAME_LENGTH 64
@@ -25,7 +26,7 @@ char __log_dir[FNAME_LENGTH];
 enum event {
   HUMAN_ARRIVAL_EVENT,
   HUMAN_DEPARTURE_EVENT,
-  /* HUMAN_INTERACTION_EVENT, */
+  HUMAN_INTERACTION_EVENT,
 };
 
 struct transition {
@@ -67,13 +68,15 @@ struct population population_decrease(const struct population *,
 				      const struct population *);
 struct population population_normalize(const struct population *,
 				       const struct population *);
+struct population population_sample(struct population *);
+bool population_empty(const struct population *);
 
 void lp_log_header(tw_lp *, const struct state *);
 void lp_log(const char *,
 	    tw_lp *,
 	    const struct state *,
 	    const struct message *);
-
+tw_lpid transition_select(tw_lp *, const struct transition *, unsigned int *);
 int human_departure_events(struct state *, tw_lp *);
 
 #endif // MODEL_H
