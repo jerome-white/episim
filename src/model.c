@@ -38,7 +38,26 @@ void init(struct state *s, tw_lp *lp) {
 }
 
 void pre_run(struct state *s, tw_lp *lp) {
-  human_departure_events(s, lp);
+  int i;
+  tw_stime ts;
+  tw_event *event;
+  struct message *msg;
+  struct population travelers;
+
+  memset((struct population *)&travelers, 0, sizeof(struct population));
+  travelers.susceptible = 1;
+
+  for (i = 0; i < s->people.susceptible; i++) {
+    ts = tw_rand_exponential(lp->rng, HUMAN_STAY_TIME);
+    event = tw_event_new(lp->gid, ts, lp);
+
+    msg = (struct message *)tw_event_data(event);
+    msg->etype = HUMAN_DEPARTURE_EVENT;
+    msg->rng_calls = 1;
+    msg->people = travelers;
+
+    tw_event_send(event);
+  }
 
   return;
 }
@@ -47,6 +66,9 @@ void forward_event_handler(struct state *s,
 			   tw_bf *bf,
 			   struct message *m,
 			   tw_lp *lp) {
+  unsigned int rng_calls;
+  double distance, speed;
+  tw_lpid lpid;
   tw_stime ts;
   tw_event *event;
   struct message *msg;
@@ -66,12 +88,28 @@ void forward_event_handler(struct state *s,
     msg->rng_calls = 1;
     msg->people = m->people;
 
-    tw_event_send(event);
-
     lp_log("HUMAN_ARRIVAL_EVENT", lp, s, m);
+    tw_event_send(event);
     break;
   case HUMAN_DEPARTURE_EVENT:
-    human_departure_events(s, lp);
+    rng_calls = 0;
+
+    s->people = population_decrease(&s->people, &m->people);
+    lpid = transition_select(lp, s->movement, &rng_calls);
+
+    speed = tw_rand_exponential(lp->rng, HUMAN_TRAVEL_SPEED);
+    distance = s->movement[lpid].distance;
+    ts = tw_rand_exponential(lp->rng, distance / speed);
+    rng_calls += 2;
+
+    event = tw_event_new(lpid, ts, lp);
+
+    msg = (struct message *)tw_event_data(event);
+    msg->etype = HUMAN_ARRIVAL_EVENT;
+    msg->rng_calls = rng_calls;
+    msg->people = m->people;
+
+    tw_event_send(event);
     break;
   default:
     tw_error(TW_LOC,
