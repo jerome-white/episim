@@ -56,13 +56,13 @@ int human_departure_events(struct state *s, tw_lp *lp) {
     if (travelers.susceptible > 0) {
       s->people = population_decrease(&s->people, &travelers);
 
-      travel_time = movement->distance / HUMAN_TRAVEL_SPEED;
-      ts = tw_rand_exponential(lp->rng, travel_time);
+      speed = tw_rand_exponential(lp->rng, HUMAN_TRAVEL_SPEED);
+      ts = tw_rand_exponential(lp->rng, movement->distance / speed);
       event = tw_event_new(i, ts, lp);
 
       msg = (struct message *)tw_event_data(event);
       msg->etype = HUMAN_ARRIVAL_EVENT;
-      msg->rng_calls = norm_calls + 1;
+      msg->rng_calls = norm_calls + 2;
       msg->people = travelers;
 
       tw_event_send(event);
