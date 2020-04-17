@@ -76,7 +76,10 @@ void lp_log(const char *,
 	    tw_lp *,
 	    const struct state *,
 	    const struct message *);
-tw_lpid transition_select(tw_lp *, const struct transition *, unsigned int *);
+tw_lpid transition_select(tw_lp *,
+			  const struct transition *,
+			  tw_lpid,
+			  unsigned int *);
 int human_departure_events(struct state *, tw_lp *);
 
 #endif // MODEL_H

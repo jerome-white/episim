@@ -7,27 +7,28 @@
 
 tw_lpid transition_select(tw_lp *lp,
 			  const struct transition *tr,
+			  tw_lpid limit,
 			  unsigned int *rng_calls) {
   tw_lpid i;
   int remaining;
   unsigned int weight;
 
   weight = 0;
-  for (i = 0; i < __tiles; i++) {
+  for (i = 0; i < limit; i++) {
     weight += tr[i].mean;
   }
 
   remaining = tw_rand_unif(lp->rng) * weight;
   *rng_calls += 1;
 
-  for (i = 0; i < __tiles; i++) {
+  for (i = 0; i < limit; i++) {
     remaining -= weight;
     if (remaining < 0) {
 	return i;
       }
   }
 
-  tw_error(TW_LOC, "Unable to perform selection");
+  return limit;
 }
 
 void lp_log_header(tw_lp *lp, const struct state *s) {

@@ -96,23 +96,24 @@ void forward_event_handler(struct state *s,
     break;
   case HUMAN_DEPARTURE_EVENT:
     rng_calls = 0;
+    lpid = transition_select(lp, s->movement, __tiles, &rng_calls);
+    if (lpid < __tiles) {
+      s->people = population_decrease(&s->people, &m->people);
 
-    s->people = population_decrease(&s->people, &m->people);
-    lpid = transition_select(lp, s->movement, &rng_calls);
+      speed = tw_rand_exponential(lp->rng, HUMAN_TRAVEL_SPEED);
+      distance = s->movement[lpid].distance;
+      ts = tw_rand_exponential(lp->rng, distance / speed);
+      rng_calls += 2;
 
-    speed = tw_rand_exponential(lp->rng, HUMAN_TRAVEL_SPEED);
-    distance = s->movement[lpid].distance;
-    ts = tw_rand_exponential(lp->rng, distance / speed);
-    rng_calls += 2;
+      event = tw_event_new(lpid, ts, lp);
 
-    event = tw_event_new(lpid, ts, lp);
+      msg = (struct message *)tw_event_data(event);
+      msg->event = HUMAN_ARRIVAL_EVENT;
+      msg->rng_calls = rng_calls;
+      msg->people = m->people;
 
-    msg = (struct message *)tw_event_data(event);
-    msg->event = HUMAN_ARRIVAL_EVENT;
-    msg->rng_calls = rng_calls;
-    msg->people = m->people;
-
-    tw_event_send(event);
+      tw_event_send(event);
+    }
     break;
   default:
     tw_error(TW_LOC,
