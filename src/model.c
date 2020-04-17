@@ -91,6 +91,9 @@ void forward_event_handler(struct state *s,
     lp_log("HUMAN_ARRIVAL_EVENT", lp, s, m);
     tw_event_send(event);
     break;
+  case HUMAN_INTERACTION_EVENT:
+
+    break;
   case HUMAN_DEPARTURE_EVENT:
     rng_calls = 0;
 
