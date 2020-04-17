@@ -32,7 +32,7 @@ const tw_optdef options[] = {
 
 int main(int argc, char **argv, char **env) {
   int i;
-  uint32_t lps_per_pe;
+  uint64_t lps_per_pe;
 
   tw_opt_add(options);
   tw_init(&argc, &argv);
