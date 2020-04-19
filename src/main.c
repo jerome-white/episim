@@ -19,11 +19,26 @@ tw_lptype handlers[] = {
   },
 };
 
+st_model_types tracers[] = {
+  {
+    (ev_trace_f) ev_trace,
+    sizeof(struct message),
+    (model_stat_f) NULL,
+    0,
+    (sample_event_f) NULL,
+    (sample_revent_f) NULL,
+    0,
+  },
+  {
+    0,
+  },
+};
+
+
 const tw_optdef options[] = {
   TWOPT_GROUP("Compartmental infectious disease modelling"),
 
   TWOPT_UINT("tiles", __tiles, "Number of homes"),
-  TWOPT_CHAR("log-directory", __log_dir, "Output file for final reporting"),
   TWOPT_CHAR("config", __config, "Configuration file"),
   TWOPT_DOUBLE("duration", __duration, "Duration of simlulation (days)"),
 
@@ -42,6 +57,7 @@ int main(int argc, char **argv, char **env) {
   tw_define_lps(lps_per_pe, sizeof(struct message));
   for (i = 0; i < g_tw_nlp; i++) {
     tw_lp_settype(i, &handlers[0]);
+    st_model_settype(i, &tracers[0]);
   }
 
   tw_run();

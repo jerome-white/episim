@@ -12,18 +12,6 @@ void init(struct state *s, tw_lp *lp) {
   memset((struct state *)s, 0, sizeof(struct state));
   s->id = lp->gid;
 
-  // output log
-  i = snprintf(fname, FNAME_LENGTH, "%s/tile-%05lu.log", __log_dir, lp->gid);
-  if (i >= FNAME_LENGTH) {
-    tw_error(TW_LOC, "Unable to create LP log file", strerror(errno));
-    exit(EXIT_FAILURE);
-  }
-  s->log = fopen(fname, "w");
-  if (s->log == NULL) {
-    tw_error(TW_LOC, "fopen error (%s): logging disabled", strerror(errno));
-    exit(EXIT_FAILURE);
-  }
-
   // population setup
   s->movement = (struct transition *)calloc(sizeof(struct transition),__tiles);
   if (s->movement == NULL) {
@@ -31,8 +19,6 @@ void init(struct state *s, tw_lp *lp) {
     exit(EXIT_FAILURE);
   }
   s->people = population_setup(__config, s, __tiles);
-
-  lp_log("INIT", lp, s, NULL);
 
   return;
 }
@@ -88,7 +74,6 @@ void forward_event_handler(struct state *s,
     msg->rng_calls = 1;
     msg->people = m->people;
 
-    lp_log("HUMAN_ARRIVAL_EVENT", lp, s, m);
     tw_event_send(event);
     break;
   case HUMAN_INTERACTION_EVENT:
@@ -159,13 +144,21 @@ void uninit(struct state *s, tw_lp *lp) {
   if (s->movement != NULL) {
     free(s->movement);
   }
-  if (s->log != NULL) {
-    fclose(s->log);
-  }
 
   return;
 }
 
 tw_peid mapping(tw_lpid gid) {
   return (tw_peid)(gid / g_tw_nlp);
+}
+
+void ev_trace(struct message *m, tw_lp *lp, char *buffer, int *collect_flag) {
+  sprintf(buffer,
+	  "%0.2f,%lu,%i,%0.2f,%0.2f,%0.2f\n",
+	  tw_now(lp),
+	  lp->gid,
+	  m->event,
+	  m->people.susceptible,
+	  m->people.infected,
+	  m->people.recovered);
 }

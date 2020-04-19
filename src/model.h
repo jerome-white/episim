@@ -21,7 +21,6 @@
 tw_stime __duration;
 uint64_t __tiles;
 char __config[FNAME_LENGTH];
-char __log_dir[FNAME_LENGTH];
 
 enum event_t {
   HUMAN_ARRIVAL_EVENT,
@@ -43,7 +42,6 @@ struct population {
 
 struct state {
   tw_lpid id;
-  FILE *log;
   struct population people;
   struct transition *movement;
 };
@@ -60,6 +58,8 @@ void forward_event_handler(struct state *, tw_bf *, struct message *, tw_lp *);
 void reverse_event_handler(struct state *, tw_bf *, struct message *, tw_lp *);
 void uninit(struct state *, tw_lp *);
 tw_peid mapping(tw_lpid);
+
+void ev_trace(struct message *, tw_lp *, char *, int *);
 
 struct population population_setup(const char *, struct state *, uint64_t);
 struct population population_increase(const struct population *,
