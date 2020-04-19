@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <assert.h>
+#include <stdbool.h>
 
 #include "model.h"
 
@@ -128,4 +129,20 @@ struct population population_normalize(const struct population *lhs,
   }
 
   return p;
+}
+
+struct population population_sample(struct population *p) {
+  struct population sample;
+  memset((struct population *)&sample, 0, sizeof(struct population));
+
+  if (p->susceptible > 0) {
+    p->susceptible -= 1;
+    sample.susceptible = 1;
+  }
+
+  return sample;
+}
+
+bool population_empty(const struct population *p) {
+  return (p->susceptible == 0 || p->infected == 0 || p->recovered == 0);
 }
