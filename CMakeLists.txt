@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 
 set (RD "${CMAKE_CURRENT_SOURCE_DIR}/ROSS/")
-set (ND "${CMAKE_CURRENT_SOURCE_DIR}/src/")
+set (ND "${CMAKE_CURRENT_SOURCE_DIR}/model/")
 set (ND "${CMAKE_CURRENT_SOURCE_DIR}/analysis/")
 
 ADD_SUBDIRECTORY(${RD})
