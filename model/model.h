@@ -2,6 +2,7 @@
 #define MODEL_H
 
 #include <stdint.h>
+#include <stdbool.h>
 #include <ross.h>
 
 #define FNAME_LENGTH 64
@@ -20,12 +21,11 @@
 tw_stime __duration;
 uint64_t __tiles;
 char __config[FNAME_LENGTH];
-char __log_dir[FNAME_LENGTH];
 
-enum event {
+enum event_t {
   HUMAN_ARRIVAL_EVENT,
   HUMAN_DEPARTURE_EVENT,
-  /* HUMAN_INTERACTION_EVENT, */
+  HUMAN_INTERACTION_EVENT,
 };
 
 struct transition {
@@ -42,14 +42,13 @@ struct population {
 
 struct state {
   tw_lpid id;
-  FILE *log;
   struct population people;
   struct transition *movement;
 };
 
 struct message {
   long rng_calls;
-  enum event etype;
+  enum event_t event;
   struct population people;
 };
 
@@ -60,6 +59,8 @@ void reverse_event_handler(struct state *, tw_bf *, struct message *, tw_lp *);
 void uninit(struct state *, tw_lp *);
 tw_peid mapping(tw_lpid);
 
+void ev_trace(struct message *, tw_lp *, char *, int *);
+
 struct population population_setup(const char *, struct state *, uint64_t);
 struct population population_increase(const struct population *,
 				      const struct population *);
@@ -67,13 +68,18 @@ struct population population_decrease(const struct population *,
 				      const struct population *);
 struct population population_normalize(const struct population *,
 				       const struct population *);
+struct population population_sample(struct population *);
+bool population_empty(const struct population *);
 
 void lp_log_header(tw_lp *, const struct state *);
 void lp_log(const char *,
 	    tw_lp *,
 	    const struct state *,
 	    const struct message *);
-
+tw_lpid transition_select(tw_lp *,
+			  const struct transition *,
+			  tw_lpid,
+			  unsigned int *);
 int human_departure_events(struct state *, tw_lp *);
 
 #endif // MODEL_H
