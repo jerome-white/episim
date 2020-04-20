@@ -29,14 +29,20 @@ int main(int argc, char **argv, char **env) {
     exit(EXIT_FAILURE);
   }
 
+  printf("source,"
+	 "destination,"
+	 "sent,"
+	 "susceptible,"
+	 "exposed,"
+	 "infected,"
+	 "recovered\n");
+
   while (!feof(fp)) {
     fread(&line, sizeof(struct metadata), 1, fp);
-    printf("%u,%u,%f,%f,%f",
+    printf("%u,%u,%f",
            line.source_lp,
            line.destination_lp,
-           line.virtual_send_time,
-           line.virtual_recv_time,
-           line.real_time);
+           line.virtual_send_time);
     if (line.model_data_size > data.size) {
       data.size = line.model_data_size;
       data.value = (char *)realloc((char *)data.value, data.size);
