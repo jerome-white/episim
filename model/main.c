@@ -15,7 +15,7 @@ tw_lptype handlers[] = {
     sizeof(struct state),
   },
   {
-    0,
+    NULL,
   },
 };
 
@@ -30,10 +30,9 @@ st_model_types tracers[] = {
     0,
   },
   {
-    0,
+    NULL,
   },
 };
-
 
 const tw_optdef options[] = {
   TWOPT_GROUP("Compartmental infectious disease modelling"),
@@ -42,7 +41,7 @@ const tw_optdef options[] = {
   TWOPT_CHAR("config", __config, "Configuration file"),
   TWOPT_DOUBLE("duration", __duration, "Duration of simlulation (days)"),
 
-  TWOPT_END()
+  TWOPT_END(),
 };
 
 int main(int argc, char **argv, char **env) {
