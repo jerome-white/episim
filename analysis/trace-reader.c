@@ -24,7 +24,12 @@ int main(int argc, char **argv, char **env) {
   data.size = 0;
 
   fp = fopen(argv[1], "r");
-  do {
+  if (fp == NULL) {
+    fprintf(stderr, "%s\n", strerror(errno));
+    exit(EXIT_FAILURE);
+  }
+
+  while (!feof(fp)) {
     fread(&line, sizeof(struct metadata), 1, fp);
     /*
     printf("%u,%u,%f,%f,%f,%i\n",
