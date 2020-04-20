@@ -28,16 +28,22 @@ enum event_t {
   HUMAN_INTERACTION_EVENT,
 };
 
+enum health_t {
+  SUSCEPTIBLE,
+  EXPOSED,
+  INFECTED,
+  RECOVERED,
+  __HEALTH_COMPARTMENTS,
+};
+
+struct population {
+  double health[__HEALTH_COMPARTMENTS];
+};
+
 struct transition {
   double mean;
   double deviation;
   double distance;
-};
-
-struct population {
-  double susceptible;
-  double infected;
-  double recovered;
 };
 
 struct state {
