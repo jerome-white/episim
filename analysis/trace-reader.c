@@ -31,23 +31,20 @@ int main(int argc, char **argv, char **env) {
 
   while (!feof(fp)) {
     fread(&line, sizeof(struct metadata), 1, fp);
-    /*
-    printf("%u,%u,%f,%f,%f,%i\n",
-	   line.source_lp,
-    	   line.destination_lp,
-    	   line.virtual_send_time,
-    	   line.virtual_recv_time,
-    	   line.real_time,
-    	   line.model_data_size);
-    */
+    printf("%u,%u,%f,%f,%f",
+           line.source_lp,
+           line.destination_lp,
+           line.virtual_send_time,
+           line.virtual_recv_time,
+           line.real_time);
     if (line.model_data_size > data.size) {
       data.size = line.model_data_size;
       data.value = (char *)realloc((char *)data.value, data.size);
     }
     len = fread(data.value, 1, data.size, fp);
     //data.value[len] = '\0';
-    printf("%s", data.value);
-  } while (!feof(fp));
+    printf(",%s\n", data.value);
+  }
   fclose(fp);
 
   free(data.value);
