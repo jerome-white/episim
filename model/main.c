@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <math.h>
 #include <ross.h>
 
 #include "model.h"
@@ -52,7 +53,7 @@ int main(int argc, char **argv, char **env) {
   tw_init(&argc, &argv);
 
   g_tw_ts_end = __duration * DAY;
-  lps_per_pe = __tiles / tw_nnodes();
+  lps_per_pe = ceil(__tiles / tw_nnodes());
   tw_define_lps(lps_per_pe, sizeof(struct message));
   for (i = 0; i < g_tw_nlp; i++) {
     tw_lp_settype(i, &handlers[0]);
