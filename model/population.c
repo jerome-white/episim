@@ -146,19 +146,33 @@ struct population population_normalize(const struct population *lhs,
   return p;
 }
 
-/*
-struct population population_sample(struct population *p) {
+struct population population_sample(tw_lp *lp,
+				    const struct population *p,
+				    long int *rng_calls) {
+  int i, elegible;
+  int remaining;
   struct population sample;
-  memset((struct population *)&sample, 0, sizeof(struct population));
 
-  if (p->susceptible > 0) {
-    p->susceptible -= 1;
-    sample.susceptible = 1;
+  for (i = 0, elegible = 0; i < __HEALTH_COMPARTMENTS; i++) {
+    if (i != INFECTED) {
+	elegible += p->health[i];
+    }
+  }
+
+  remaining = tw_rand_unif(lp->rng) * elegible;
+  *rng_calls += 1;
+
+  memset((struct population *)&sample, 0, sizeof(struct population));
+  for (i = 0; i < __HEALTH_COMPARTMENTS; i++) {
+    remaining -= elegible;
+    if (remaining < 0) {
+      sample.health[i] = 1;
+      break;
+    }
   }
 
   return sample;
 }
-*/
 
 bool population_empty(const struct population *p) {
   int i;
