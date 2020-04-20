@@ -67,28 +67,29 @@ void forward_event_handler(struct state *s,
     s->people = population_increase(&s->people, &m->people);
 
     ts = tw_rand_exponential(lp->rng, HUMAN_STAY_TIME);
+    m->rng_calls = 1;
     event = tw_event_new(lp->gid, ts, lp);
 
     msg = (struct message *)tw_event_data(event);
     msg->event = HUMAN_DEPARTURE_EVENT;
-    msg->rng_calls = 1;
     msg->people = m->people;
 
     tw_event_send(event);
-    break;
-  case HUMAN_INTERACTION_EVENT:
 
     break;
+  /* case HUMAN_INTERACTION_EVENT: */
+
+  /*   break; */
   case HUMAN_DEPARTURE_EVENT:
-    rng_calls = 0;
-    lpid = transition_select(lp, s->movement, __tiles, &rng_calls);
+    m->rng_calls = 0;
+    lpid = transition_select(lp, s->movement, __tiles, &m->rng_calls);
     if (lpid < __tiles) {
       s->people = population_decrease(&s->people, &m->people);
 
       speed = tw_rand_exponential(lp->rng, HUMAN_TRAVEL_SPEED);
       distance = s->movement[lpid].distance;
       ts = tw_rand_exponential(lp->rng, distance / speed);
-      rng_calls += 2;
+      m->rng_calls += 1;
 
       event = tw_event_new(lpid, ts, lp);
 
@@ -154,11 +155,11 @@ tw_peid mapping(tw_lpid gid) {
 
 void ev_trace(struct message *m, tw_lp *lp, char *buffer, int *collect_flag) {
   sprintf(buffer,
-	  "%0.2f,%lu,%i,%0.2f,%0.2f,%0.2f\n",
-	  tw_now(lp),
-	  lp->gid,
+	  "%i,%0.2f,%0.2f,%0.2f",
 	  m->event,
 	  m->people.susceptible,
 	  m->people.infected,
 	  m->people.recovered);
+
+  return;
 }
