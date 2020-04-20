@@ -8,7 +8,7 @@
 tw_lpid transition_select(tw_lp *lp,
 			  const struct transition *tr,
 			  tw_lpid limit,
-			  unsigned int *rng_calls) {
+			  long int *rng_calls) {
   tw_lpid i;
   int remaining;
   unsigned int weight;
