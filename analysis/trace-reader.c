@@ -32,6 +32,7 @@ int main(int argc, char **argv, char **env) {
   printf("source,"
 	 "destination,"
 	 "sent,"
+	 "event,"
 	 "susceptible,"
 	 "exposed,"
 	 "infected,"
