@@ -74,7 +74,9 @@ struct population population_decrease(const struct population *,
 				      const struct population *);
 struct population population_normalize(const struct population *,
 				       const struct population *);
-struct population population_sample(struct population *);
+struct population population_sample(tw_lp *,
+				    const struct population *,
+				    long int *);
 bool population_empty(const struct population *);
 
 void lp_log_header(tw_lp *, const struct state *);
