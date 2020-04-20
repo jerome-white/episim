@@ -31,9 +31,9 @@ void pre_run(struct state *s, tw_lp *lp) {
   struct population travelers;
 
   memset((struct population *)&travelers, 0, sizeof(struct population));
-  travelers.susceptible = 1;
+  travelers.health[SUSCEPTIBLE] = 1;
 
-  for (i = 0; i < s->people.susceptible; i++) {
+  for (i = 0; i < s->people.health[SUSCEPTIBLE]; i++) {
     ts = tw_rand_exponential(lp->rng, HUMAN_STAY_TIME);
     event = tw_event_new(lp->gid, ts, lp);
 
@@ -155,11 +155,12 @@ tw_peid mapping(tw_lpid gid) {
 
 void ev_trace(struct message *m, tw_lp *lp, char *buffer, int *collect_flag) {
   sprintf(buffer,
-	  "%i,%0.2f,%0.2f,%0.2f",
+	  "%i,%0.2f,%0.2f,%0.2f,%0.2f",
 	  m->event,
-	  m->people.susceptible,
-	  m->people.infected,
-	  m->people.recovered);
+	  m->people.health[SUSCEPTIBLE],
+	  m->people.health[EXPOSED],
+	  m->people.health[INFECTED],
+	  m->people.health[RECOVERED]);
 
   return;
 }

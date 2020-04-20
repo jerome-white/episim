@@ -8,13 +8,16 @@
 
 #include "model.h"
 
+#define BEFORE_POPULATION 4
+
 struct population population_setup(const char *path,
 				   struct state *s,
 				   uint64_t nsize) {
   uint8_t i;
   uint16_t
     lineno,
-    wordno;
+    wordno,
+    index;
   uint64_t id;
   double
     people_total,
@@ -30,16 +33,25 @@ struct population population_setup(const char *path,
     p_totals,
     p_counts;
   struct transition *trans;
-  
+
+  /*
+   *
+   */
   fp = fopen(path, "r");
   if (fp == NULL) {
     fprintf(stderr, "%s\n", strerror(errno));
     exit(EXIT_FAILURE);
   }
 
+  /*
+   *
+   */
   memset((struct population *)&p_totals, 0, sizeof(struct population));
   memset((struct population *)&p_counts, 0, sizeof(struct population));
   
+  /*
+   *
+   */
   for (lineno = 0; ; lineno++) {
     read = getline(&line, &len, fp);
     if (read < 0) {
@@ -66,26 +78,31 @@ struct population population_setup(const char *path,
       case 1: // destination
 	trans = &s->movement[atoi(word)];
 	break;
-      case 2: // movement mean
-	trans->mean = atof(word);
-	break;
-      case 3: // movement deviation
-	trans->deviation = atof(word);
-	break;
-      case 4: // population
-	p_totals.susceptible += atof(word);
-	p_counts.susceptible += 1;
-	break;
-      case 5: // distance
+      case 2: // distance
 	trans->distance = atof(word);
 	break;
+      case 3: // movement mean
+	trans->mean = atof(word);
+	break;
+      case BEFORE_POPULATION: // movement deviation
+	trans->deviation = atof(word);
+	break;
       default:
+	index = wordno - (BEFORE_POPULATION + 1);
+	assert(0 <= index);
+	assert(index < __HEALTH_COMPARTMENTS);
+
+	p_totals.health[index] += atof(word);
+	p_counts.health[index] += 1;
 	break;
       }
       word = strtok(NULL, sep);
     }
   }
   
+  /*
+   *
+   */
   fclose(fp);
 
   return population_normalize(&p_totals, &p_counts);
@@ -93,44 +110,43 @@ struct population population_setup(const char *path,
 
 struct population population_increase(const struct population *lhs,
 				      const struct population *rhs) {
+  int i;
   struct population p;
 
-  p.susceptible = lhs->susceptible + rhs->susceptible;
-  p.infected    = lhs->infected + rhs->infected;
-  p.recovered   = lhs->recovered + rhs->recovered;
+  for (i = 0; i < __HEALTH_COMPARTMENTS; i++) {
+    p.health[i] = lhs->health[i] + rhs->health[i];
+  }
 
   return p;
 }
 
 struct population population_decrease(const struct population *lhs,
 				      const struct population *rhs) {
+  int i;
   struct population p;
 
-  p.susceptible = lhs->susceptible - rhs->susceptible;
-  p.infected    = lhs->infected - rhs->infected;
-  p.recovered   = lhs->recovered - rhs->recovered;
+  for (i = 0; i < __HEALTH_COMPARTMENTS; i++) {
+    p.health[i] = lhs->health[i] - rhs->health[i];
+  }
 
   return p;
 }
 
 struct population population_normalize(const struct population *lhs,
 				       const struct population *rhs) {
+  int i;
+  double denom;
   struct population p;
-  memset((struct population *)&p, 0, sizeof(struct population));
 
-  if (rhs->susceptible != 0) {
-    p.susceptible = lhs->susceptible / rhs->susceptible;
-  }
-  if (rhs->infected != 0) {
-    p.infected = lhs->infected / rhs->infected;
-  }
-  if (rhs->recovered != 0) {
-    p.recovered = lhs->recovered / rhs->recovered;
+  for (i = 0; i < __HEALTH_COMPARTMENTS; i++) {
+    denom = rhs->health[i];
+    p.health[i] = (denom == 0) ? 0 : lhs->health[i] / denom;
   }
 
   return p;
 }
 
+/*
 struct population population_sample(struct population *p) {
   struct population sample;
   memset((struct population *)&sample, 0, sizeof(struct population));
@@ -142,7 +158,16 @@ struct population population_sample(struct population *p) {
 
   return sample;
 }
+*/
 
 bool population_empty(const struct population *p) {
-  return (p->susceptible == 0 || p->infected == 0 || p->recovered == 0);
+  int i;
+
+  for (i = 0; i < __HEALTH_COMPARTMENTS; i++) {
+    if (p->health[i] > 0) {
+      return false;
+    }
+  }
+
+  return true;
 }
