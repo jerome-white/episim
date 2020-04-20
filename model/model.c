@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <assert.h>
 #include <ross.h>
 
 #include "model.h"
@@ -58,6 +59,7 @@ void forward_event_handler(struct state *s,
   tw_stime ts;
   tw_event *event;
   struct message *msg;
+  struct population travelers;
 
   memset((tw_bf *)bf, 0, sizeof(tw_bf));
 
@@ -77,26 +79,28 @@ void forward_event_handler(struct state *s,
     tw_event_send(event);
 
     break;
-  /* case HUMAN_INTERACTION_EVENT: */
+  case HUMAN_INTERACTION_EVENT:
 
-  /*   break; */
+    break;
   case HUMAN_DEPARTURE_EVENT:
     m->rng_calls = 0;
     lpid = transition_select(lp, s->movement, __tiles, &m->rng_calls);
     if (lpid < __tiles) {
-      s->people = population_decrease(&s->people, &m->people);
+      travelers = population_sample(lp, &s->people, &m->rng_calls);
+      assert(!population_empty(&travelers));
+      s->people = population_decrease(&s->people, &travelers);
 
-      speed = tw_rand_exponential(lp->rng, HUMAN_TRAVEL_SPEED);
       distance = s->movement[lpid].distance;
+      speed = tw_rand_exponential(lp->rng, HUMAN_TRAVEL_SPEED);
       ts = tw_rand_exponential(lp->rng, distance / speed);
-      m->rng_calls += 1;
+      m->rng_calls += 2;
 
       event = tw_event_new(lpid, ts, lp);
 
       msg = (struct message *)tw_event_data(event);
       msg->event = HUMAN_ARRIVAL_EVENT;
-      msg->rng_calls = rng_calls;
-      msg->people = m->people;
+      msg->rng_calls = m->rng_calls;
+      msg->people = travelers;
 
       tw_event_send(event);
     }
@@ -107,7 +111,6 @@ void forward_event_handler(struct state *s,
 	     lp->id,
 	     m->event);
     exit(EXIT_FAILURE);
-    break;
   }
 
   return;
