@@ -144,6 +144,21 @@ struct population p_normalize(const struct population *lhs,
   return p;
 }
 
+unsigned int p_total(const struct population *p) {
+  int i;
+  unsigned int people;
+
+  for (i = 0, people = 0; i < __HEALTH_COMPARTMENTS; i++) {
+    people += p->health[i];
+  }
+
+  return people;
+}
+
+bool p_empty(const struct population *p) {
+  return p_total(p) == 0;
+}
+
 struct population p_sample(tw_lp *lp,
 			   const struct population *p,
 			   unsigned int k) {
@@ -153,10 +168,7 @@ struct population p_sample(tw_lp *lp,
     people;
   struct population sample;
 
-  for (i = 0, people = 0; i < __HEALTH_COMPARTMENTS; i++) {
-    people += p->health[i];
-  }
-
+  people = p_total(p);
   memset((struct population *)&sample, 0, sizeof(struct population));
 
   for (; k; k--) {
@@ -171,18 +183,6 @@ struct population p_sample(tw_lp *lp,
   }
 
   return sample;
-}
-
-bool p_empty(const struct population *p) {
-  int i;
-
-  for (i = 0; i < __HEALTH_COMPARTMENTS; i++) {
-    if (p->health[i] > 0) {
-      return false;
-    }
-  }
-
-  return true;
 }
 
 bool p_infectious(const struct population *p) {
