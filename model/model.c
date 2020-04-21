@@ -19,7 +19,7 @@ void init(struct state *s, tw_lp *lp) {
     tw_error(TW_LOC, "malloc error: %s", strerror(errno));
     exit(EXIT_FAILURE);
   }
-  s->people = population_setup(__config, s, __tiles);
+  s->people = p_setup(__config, s, __tiles);
 
   return;
 }
@@ -66,7 +66,7 @@ void forward_event_handler(struct state *s,
   switch (m->event) {
   case HUMAN_ARRIVAL_EVENT:
     msg = (struct message *)tw_event_data(event);
-    s->people = population_increase(&s->people, &m->people);
+    s->people = p_increase(&s->people, &m->people);
 
     ts = tw_rand_exponential(lp->rng, HUMAN_STAY_TIME);
     m->rng_calls = 1;
@@ -79,16 +79,13 @@ void forward_event_handler(struct state *s,
     tw_event_send(event);
 
     break;
-  case HUMAN_INTERACTION_EVENT:
-
-    break;
   case HUMAN_DEPARTURE_EVENT:
     m->rng_calls = 0;
     lpid = transition_select(lp, s->movement, __tiles, &m->rng_calls);
     if (lpid < __tiles) {
-      travelers = population_sample(lp, &s->people, &m->rng_calls);
-      assert(!population_empty(&travelers));
-      s->people = population_decrease(&s->people, &travelers);
+      travelers = p_sample(lp, &s->people, &m->rng_calls);
+      assert(!p_empty(&travelers));
+      s->people = p_decrease(&s->people, &travelers);
 
       distance = s->movement[lpid].distance;
       speed = tw_rand_exponential(lp->rng, HUMAN_TRAVEL_SPEED);
@@ -128,10 +125,10 @@ void reverse_event_handler(struct state *s,
 
   switch (m->event) {
   case HUMAN_ARRIVAL_EVENT:
-    population_decrease(&s->people, &m->people);
+    p_decrease(&s->people, &m->people);
     break;
   case HUMAN_DEPARTURE_EVENT:
-    population_increase(&s->people, &m->people);
+    p_increase(&s->people, &m->people);
     break;
   default:
     tw_error(TW_LOC,

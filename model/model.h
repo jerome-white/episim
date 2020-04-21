@@ -67,17 +67,15 @@ tw_peid mapping(tw_lpid);
 
 void ev_trace(struct message *, tw_lp *, char *, int *);
 
-struct population population_setup(const char *, struct state *, uint64_t);
-struct population population_increase(const struct population *,
-				      const struct population *);
-struct population population_decrease(const struct population *,
-				      const struct population *);
-struct population population_normalize(const struct population *,
-				       const struct population *);
-struct population population_sample(tw_lp *,
-				    const struct population *,
-				    long int *);
-bool population_empty(const struct population *);
+struct population p_setup(const char *, struct state *, uint64_t);
+struct population p_increase(const struct population *,
+			     const struct population *);
+struct population p_decrease(const struct population *,
+			     const struct population *);
+struct population p_normalize(const struct population *,
+			      const struct population *);
+struct population p_sample(tw_lp *, const struct population *, long int *);
+bool p_empty(const struct population *);
 
 tw_lpid transition_select(tw_lp *,
 			  const struct transition *,
