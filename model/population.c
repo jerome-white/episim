@@ -183,3 +183,7 @@ bool p_empty(const struct population *p) {
 
   return true;
 }
+
+bool p_infectious(const struct population *p) {
+  return p->health[SUSCEPTIBLE] && (p->health[EXPOSED] || p->health[INFECTED]);
+}
