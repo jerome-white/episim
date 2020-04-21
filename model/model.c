@@ -35,11 +35,11 @@ void pre_run(struct state *s, tw_lp *lp) {
   travelers.health[SUSCEPTIBLE] = 1;
 
   for (i = 0; i < s->people.health[SUSCEPTIBLE]; i++) {
-    ts = tw_rand_exponential(lp->rng, HUMAN_STAY_TIME);
+    ts = tw_rand_exponential(lp->rng, MOVEMENT_DWELL_TIME);
     event = tw_event_new(lp->gid, ts, lp);
 
     msg = (struct message *)tw_event_data(event);
-    msg->event = HUMAN_DEPARTURE_EVENT;
+    msg->event = MOVEMENT_DEPARTURE_EVENT;
     msg->rng_calls = 1;
     msg->people = travelers;
 
@@ -64,22 +64,22 @@ void forward_event_handler(struct state *s,
   memset((tw_bf *)bf, 0, sizeof(tw_bf));
 
   switch (m->event) {
-  case HUMAN_ARRIVAL_EVENT:
+  case MOVEMENT_ARRIVAL_EVENT:
     msg = (struct message *)tw_event_data(event);
     s->people = p_increase(&s->people, &m->people);
 
-    ts = tw_rand_exponential(lp->rng, HUMAN_STAY_TIME);
+    ts = tw_rand_exponential(lp->rng, MOVEMENT_DWELL_TIME);
     m->rng_calls = 1;
     event = tw_event_new(lp->gid, ts, lp);
 
     msg = (struct message *)tw_event_data(event);
-    msg->event = HUMAN_DEPARTURE_EVENT;
+    msg->event = MOVEMENT_DEPARTURE_EVENT;
     msg->people = m->people;
 
     tw_event_send(event);
 
     break;
-  case HUMAN_DEPARTURE_EVENT:
+  case MOVEMENT_DEPARTURE_EVENT:
     m->rng_calls = 0;
     lpid = transition_select(lp, s->movement, __tiles, &m->rng_calls);
     if (lpid < __tiles) {
@@ -89,14 +89,14 @@ void forward_event_handler(struct state *s,
       s->people = p_decrease(&s->people, &travelers);
 
       distance = s->movement[lpid].distance;
-      speed = tw_rand_exponential(lp->rng, HUMAN_TRAVEL_SPEED);
+      speed = tw_rand_exponential(lp->rng, MOVEMENT_TRAVEL_SPEED);
       ts = tw_rand_exponential(lp->rng, distance / speed);
       m->rng_calls += 2;
 
       event = tw_event_new(lpid, ts, lp);
 
       msg = (struct message *)tw_event_data(event);
-      msg->event = HUMAN_ARRIVAL_EVENT;
+      msg->event = MOVEMENT_ARRIVAL_EVENT;
       msg->rng_calls = m->rng_calls;
       msg->people = travelers;
 
@@ -125,10 +125,10 @@ void reverse_event_handler(struct state *s,
   }
 
   switch (m->event) {
-  case HUMAN_ARRIVAL_EVENT:
+  case MOVEMENT_ARRIVAL_EVENT:
     p_decrease(&s->people, &m->people);
     break;
-  case HUMAN_DEPARTURE_EVENT:
+  case MOVEMENT_DEPARTURE_EVENT:
     p_increase(&s->people, &m->people);
     break;
   default:
