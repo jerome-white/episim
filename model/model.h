@@ -74,8 +74,9 @@ struct population p_decrease(const struct population *,
 			     const struct population *);
 struct population p_normalize(const struct population *,
 			      const struct population *);
-struct population p_sample(tw_lp *, const struct population *, long int *);
+struct population p_sample(tw_lp *, const struct population *, unsigned int);
 bool p_empty(const struct population *);
+bool p_infectious(const struct population *);
 
 tw_lpid transition_select(tw_lp *,
 			  const struct transition *,
