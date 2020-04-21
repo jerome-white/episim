@@ -83,8 +83,9 @@ void forward_event_handler(struct state *s,
     m->rng_calls = 0;
     lpid = transition_select(lp, s->movement, __tiles, &m->rng_calls);
     if (lpid < __tiles) {
-      travelers = p_sample(lp, &s->people, &m->rng_calls);
+      travelers = p_sample(lp, &s->people, 1);
       assert(!p_empty(&travelers));
+      m->rng_calls += 1;
       s->people = p_decrease(&s->people, &travelers);
 
       distance = s->movement[lpid].distance;
