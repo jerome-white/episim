@@ -15,17 +15,20 @@
 #define HOUR   (MINUTE * 60.0)
 #define DAY    (HOUR * 24.0)
 
-#define HUMAN_TRAVEL_SPEED 20
-#define HUMAN_STAY_TIME    (HOUR * 8)
+#define MOVEMENT_TRAVEL_SPEED 20
+#define MOVEMENT_DWELL_TIME   (HOUR * 8)
 
 tw_stime __duration;
 uint64_t __tiles;
 char __config[FNAME_LENGTH];
 
 enum event_t {
-  HUMAN_ARRIVAL_EVENT,
-  HUMAN_DEPARTURE_EVENT,
+  MOVEMENT_ARRIVAL_EVENT,
+  MOVEMENT_DEPARTURE_EVENT,
+
   HUMAN_INTERACTION_EVENT,
+  HUMAN_INFECTION_EVENT,
+  HUMAN_RECOVERY_EVENT,
 };
 
 enum health_t {
