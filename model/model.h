@@ -79,11 +79,6 @@ struct population population_sample(tw_lp *,
 				    long int *);
 bool population_empty(const struct population *);
 
-void lp_log_header(tw_lp *, const struct state *);
-void lp_log(const char *,
-	    tw_lp *,
-	    const struct state *,
-	    const struct message *);
 tw_lpid transition_select(tw_lp *,
 			  const struct transition *,
 			  tw_lpid,
