@@ -10,9 +10,7 @@
 
 #define BEFORE_POPULATION 4
 
-struct population population_setup(const char *path,
-				   struct state *s,
-				   uint64_t nsize) {
+struct population p_setup(const char *path, struct state *s, uint64_t nsize) {
   uint8_t i;
   uint16_t
     lineno,
@@ -105,11 +103,11 @@ struct population population_setup(const char *path,
    */
   fclose(fp);
 
-  return population_normalize(&p_totals, &p_counts);
+  return p_normalize(&p_totals, &p_counts);
 }
 
-struct population population_increase(const struct population *lhs,
-				      const struct population *rhs) {
+struct population p_increase(const struct population *lhs,
+			     const struct population *rhs) {
   int i;
   struct population p;
 
@@ -120,8 +118,8 @@ struct population population_increase(const struct population *lhs,
   return p;
 }
 
-struct population population_decrease(const struct population *lhs,
-				      const struct population *rhs) {
+struct population p_decrease(const struct population *lhs,
+			     const struct population *rhs) {
   int i;
   struct population p;
 
@@ -132,8 +130,8 @@ struct population population_decrease(const struct population *lhs,
   return p;
 }
 
-struct population population_normalize(const struct population *lhs,
-				       const struct population *rhs) {
+struct population p_normalize(const struct population *lhs,
+			      const struct population *rhs) {
   int i;
   double denom;
   struct population p;
@@ -146,16 +144,16 @@ struct population population_normalize(const struct population *lhs,
   return p;
 }
 
-struct population population_sample(tw_lp *lp,
-				    const struct population *p,
-				    long int *rng_calls) {
+struct population p_sample(tw_lp *lp,
+			   const struct population *p,
+			   long int *rng_calls) {
   int i, elegible;
   int remaining;
   struct population sample;
 
   for (i = 0, elegible = 0; i < __HEALTH_COMPARTMENTS; i++) {
     if (i != INFECTED) {
-	elegible += p->health[i];
+      elegible += p->health[i];
     }
   }
 
@@ -174,7 +172,7 @@ struct population population_sample(tw_lp *lp,
   return sample;
 }
 
-bool population_empty(const struct population *p) {
+bool p_empty(const struct population *p) {
   int i;
 
   for (i = 0; i < __HEALTH_COMPARTMENTS; i++) {
