@@ -45,6 +45,16 @@ void pre_run(struct state *s, tw_lp *lp) {
     tw_event_send(event);
   }
 
+  ts = tw_rand_exponential(lp->rng, MINUTE);
+  event = tw_event_new(lp->gid, ts, lp);
+  msg = (struct message *)tw_event_data(event);
+  /*
+  msg->rng_calls = 0;
+  msg->people = s->people;
+  */
+  msg->event = MOVEMENT_INTERACTION_EVENT;
+  tw_event_send(event);
+
   return;
 }
 
