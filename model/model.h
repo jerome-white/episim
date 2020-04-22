@@ -91,6 +91,5 @@ tw_lpid transition_select(tw_lp *,
 			  const struct transition *,
 			  tw_lpid,
 			  long int *);
-int human_departure_events(struct state *, tw_lp *);
 
 #endif // MODEL_H
