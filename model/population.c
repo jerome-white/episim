@@ -59,7 +59,7 @@ struct population p_setup(const char *path, struct state *s, uint64_t nsize) {
       case 0: // source
 	id = atoll(word);
 	if (id > nsize) {
-	  fprintf(stderr, "Proposed ID exceeds limit: %llu %llu\n", id, nsize);
+	  fprintf(stderr, "Proposed ID exceeds limit: %lu %lu\n", id, nsize);
 	  exit(EXIT_FAILURE);
 	}
 	if (id != s->id) {
