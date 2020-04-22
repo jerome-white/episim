@@ -117,7 +117,7 @@ void forward_event_handler(struct state *s,
     break;
   case MOVEMENT_INTERACTION_EVENT:
     ts = tw_rand_exponential(lp->rng, MINUTE);
-    event = tw_event_new(lpid, ts, lp);
+    event = tw_event_new(lp->gid, ts, lp);
 
     msg = (struct message *)tw_event_data(event);
     msg->event = HUMAN_INTERACTION_EVENT;
@@ -129,7 +129,7 @@ void forward_event_handler(struct state *s,
     // Schedule another interaction
     speed = 1 / p_total(&s->people);
     ts = tw_rand_exponential(lp->rng, speed * HOUR);
-    event = tw_event_new(lpid, ts, lp);
+    event = tw_event_new(lp->gid, ts, lp);
 
     msg = (struct message *)tw_event_data(event);
     msg->event = MOVEMENT_INTERACTION_EVENT;
@@ -144,7 +144,7 @@ void forward_event_handler(struct state *s,
     for (i = 0; i < __HEALTH_COMPARTMENTS; i++) {
       for (j = 0; j < people.health[i]; j++) {
 	ts = tw_rand_exponential(lp->rng, HOUR);
-	event = tw_event_new(lpid, ts, lp);
+	event = tw_event_new(lp->gid, ts, lp);
 
 	msg = (struct message *)tw_event_data(event);
 	msg->event = HUMAN_INFECTION_EVENT;;
@@ -161,7 +161,7 @@ void forward_event_handler(struct state *s,
     s->people = p_increase(&s->people, &people);
 
     ts = tw_rand_exponential(lp->rng, 10 * DAY);
-    event = tw_event_new(lpid, ts, lp);
+    event = tw_event_new(lp->gid, ts, lp);
 
     msg = (struct message *)tw_event_data(event);
     msg->event = HUMAN_RECOVERY_EVENT;
@@ -180,7 +180,7 @@ void forward_event_handler(struct state *s,
       s->people = p_increase(&s->people, &people);
 
       ts = tw_rand_exponential(lp->rng, 5 * DAY);
-      event = tw_event_new(lpid, ts, lp);
+      event = tw_event_new(lp->gid, ts, lp);
       msg = (struct message *)tw_event_data(event);
 
       msg->event = HUMAN_SUSCEPTIBLE_EVENT;
