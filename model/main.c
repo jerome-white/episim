@@ -24,8 +24,8 @@ st_model_types tracers[] = {
   {
     (ev_trace_f) ev_trace,
     sizeof(struct message),
-    (model_stat_f) NULL,
-    0,
+    (model_stat_f) model_stat,
+    sizeof(struct state),
     (sample_event_f) NULL,
     (sample_revent_f) NULL,
     0,

@@ -255,14 +255,3 @@ void uninit(struct state *s, tw_lp *lp) {
 tw_peid mapping(tw_lpid gid) {
   return (tw_peid)(gid / g_tw_nlp);
 }
-
-void ev_trace(struct message *m, tw_lp *lp, char *buffer, int *collect_flag) {
-  sprintf(buffer,
-	  "%i,%0.2f,%0.2f,%0.2f",
-	  m->event,
-	  m->people.health[SUSCEPTIBLE],
-	  m->people.health[INFECTED],
-	  m->people.health[RECOVERED]);
-
-  return;
-}
