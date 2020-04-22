@@ -11,9 +11,9 @@
 /*
  * Standard concepts of time. We assume a clock-tick is one minute
  */
-#define MINUTE 1.0
-#define HOUR   (MINUTE * 60.0)
-#define DAY    (HOUR * 24.0)
+#define MINUTE 1
+#define HOUR   (MINUTE * 60)
+#define DAY    (HOUR * 24)
 
 #define MOVEMENT_TRAVEL_SPEED 20
 #define MOVEMENT_DWELL_TIME   (HOUR * 8)
