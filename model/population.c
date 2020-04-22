@@ -10,9 +10,11 @@
 
 #define BEFORE_POPULATION 4
 
-struct population population_setup(const char *path,
-				   struct state *s,
-				   uint64_t nsize) {
+/* inline void p_init(struct population *p) { */
+/*   memset((struct population *)&p, 0, sizeof(struct population)); */
+/* } */
+
+struct population p_setup(const char *path, struct state *s, uint64_t nsize) {
   uint8_t i;
   uint16_t
     lineno,
@@ -30,8 +32,8 @@ struct population population_setup(const char *path,
     *word;
   FILE *fp;
   struct population
-    p_totals,
-    p_counts;
+    p_totals = {0},
+    p_counts = {0};
   struct transition *trans;
 
   /*
@@ -46,9 +48,7 @@ struct population population_setup(const char *path,
   /*
    *
    */
-  memset((struct population *)&p_totals, 0, sizeof(struct population));
-  memset((struct population *)&p_counts, 0, sizeof(struct population));
-  
+
   /*
    *
    */
@@ -67,7 +67,7 @@ struct population population_setup(const char *path,
       case 0: // source
 	id = atoll(word);
 	if (id > nsize) {
-	  fprintf(stderr, "Proposed ID exceeds limit: %lu %lu\n", id, nsize);
+	  fprintf(stderr, "Proposed ID exceeds limit: %llu %llu\n", id, nsize);
 	  exit(EXIT_FAILURE);
 	}
 	if (id != s->id) {
@@ -105,11 +105,11 @@ struct population population_setup(const char *path,
    */
   fclose(fp);
 
-  return population_normalize(&p_totals, &p_counts);
+  return p_normalize(&p_totals, &p_counts);
 }
 
-struct population population_increase(const struct population *lhs,
-				      const struct population *rhs) {
+struct population p_increase(const struct population *lhs,
+			     const struct population *rhs) {
   int i;
   struct population p;
 
@@ -120,8 +120,8 @@ struct population population_increase(const struct population *lhs,
   return p;
 }
 
-struct population population_decrease(const struct population *lhs,
-				      const struct population *rhs) {
+struct population p_decrease(const struct population *lhs,
+			     const struct population *rhs) {
   int i;
   struct population p;
 
@@ -132,8 +132,8 @@ struct population population_decrease(const struct population *lhs,
   return p;
 }
 
-struct population population_normalize(const struct population *lhs,
-				       const struct population *rhs) {
+struct population p_normalize(const struct population *lhs,
+			      const struct population *rhs) {
   int i;
   double denom;
   struct population p;
@@ -146,42 +146,83 @@ struct population population_normalize(const struct population *lhs,
   return p;
 }
 
-struct population population_sample(tw_lp *lp,
-				    const struct population *p,
-				    long int *rng_calls) {
-  int i, elegible;
-  int remaining;
-  struct population sample;
+unsigned int p_total(const struct population *p) {
+  int i;
+  unsigned int people;
 
-  for (i = 0, elegible = 0; i < __HEALTH_COMPARTMENTS; i++) {
-    if (i != INFECTED) {
-	elegible += p->health[i];
-    }
+  for (i = 0, people = 0; i < __HEALTH_COMPARTMENTS; i++) {
+    people += p->health[i];
   }
 
-  remaining = tw_rand_unif(lp->rng) * elegible;
-  *rng_calls += 1;
+  return people;
+}
 
-  memset((struct population *)&sample, 0, sizeof(struct population));
-  for (i = 0; i < __HEALTH_COMPARTMENTS; i++) {
-    remaining -= elegible;
-    if (remaining < 0) {
-      sample.health[i] = 1;
-      break;
+bool p_empty(const struct population *p) {
+  return p_total(p) == 0;
+}
+
+struct population p_sample(tw_lp *lp,
+			   const struct population *p,
+			   unsigned int k) {
+  int
+    i,
+    remaining,
+    people;
+  struct population sample = {0};
+
+  people = p_total(p);
+  for (; k; k--) {
+    people = tw_rand_unif(lp->rng) * people;
+    for (i = 0; i < __HEALTH_COMPARTMENTS; i++) {
+      remaining -= people;
+      if (remaining < 0) {
+	sample.health[i] += 1;
+	break;
+      }
     }
   }
 
   return sample;
 }
 
-bool population_empty(const struct population *p) {
-  int i;
-
-  for (i = 0; i < __HEALTH_COMPARTMENTS; i++) {
-    if (p->health[i] > 0) {
-      return false;
-    }
+struct population p_exposed(tw_lp *lp,
+			    const struct population *p,
+			    long int *rng_calls) {
+  struct population exposed = {0};
+  if (p->health[INFECTED]) {
+    exposed.health[SUSCEPTIBLE] = p->health[SUSCEPTIBLE];
   }
 
-  return true;
+  return exposed;
+}
+
+struct population p_person(enum health_t compartment) {
+  struct population p = {0};
+  p.health[compartment] = 1;
+
+  return p;
+}
+
+struct population p_right_shift(const struct population *p) {
+  int i, j;
+  struct population shift;
+
+  for (i = 0; i < __HEALTH_COMPARTMENTS; i++) {
+    j = (i + 1) % __HEALTH_COMPARTMENTS;
+    shift.health[j] = p->health[i];
+  }
+
+  return shift;
+}
+
+struct population p_left_shift(const struct population *p) {
+  int i, j;
+  struct population shift;
+
+  for (i = 0; i < __HEALTH_COMPARTMENTS; i++) {
+    j = (i - 1) % __HEALTH_COMPARTMENTS;
+    shift.health[j] = p->health[i];
+  }
+
+  return shift;
 }

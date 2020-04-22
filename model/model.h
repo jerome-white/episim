@@ -15,22 +15,27 @@
 #define HOUR   (MINUTE * 60.0)
 #define DAY    (HOUR * 24.0)
 
-#define HUMAN_TRAVEL_SPEED 20
-#define HUMAN_STAY_TIME    (HOUR * 8)
+#define MOVEMENT_TRAVEL_SPEED 20
+#define MOVEMENT_DWELL_TIME   (HOUR * 8)
+
+#define MORTALITY_RATE 0.034
 
 tw_stime __duration;
 uint64_t __tiles;
 char __config[FNAME_LENGTH];
 
 enum event_t {
-  HUMAN_ARRIVAL_EVENT,
-  HUMAN_DEPARTURE_EVENT,
+  MOVEMENT_ARRIVAL_EVENT,
+  MOVEMENT_DEPARTURE_EVENT,
+  MOVEMENT_INTERACTION_EVENT,
   HUMAN_INTERACTION_EVENT,
+  HUMAN_INFECTION_EVENT,
+  HUMAN_RECOVERY_EVENT,
+  HUMAN_SUSCEPTIBLE_EVENT,
 };
 
 enum health_t {
   SUSCEPTIBLE,
-  EXPOSED,
   INFECTED,
   RECOVERED,
   __HEALTH_COMPARTMENTS,
@@ -67,23 +72,21 @@ tw_peid mapping(tw_lpid);
 
 void ev_trace(struct message *, tw_lp *, char *, int *);
 
-struct population population_setup(const char *, struct state *, uint64_t);
-struct population population_increase(const struct population *,
-				      const struct population *);
-struct population population_decrease(const struct population *,
-				      const struct population *);
-struct population population_normalize(const struct population *,
-				       const struct population *);
-struct population population_sample(tw_lp *,
-				    const struct population *,
-				    long int *);
-bool population_empty(const struct population *);
+bool p_empty(const struct population *);
+unsigned int p_total(const struct population *);
+struct population p_setup(const char *, struct state *, uint64_t);
+struct population p_increase(const struct population *,
+			     const struct population *);
+struct population p_decrease(const struct population *,
+			     const struct population *);
+struct population p_normalize(const struct population *,
+			      const struct population *);
+struct population p_sample(tw_lp *, const struct population *, unsigned int);
+struct population p_exposed(tw_lp *, const struct population *, long int *);
+struct population p_person(enum health_t);
+struct population p_right_shift(const struct population *);
+struct population p_left_shift(const struct population *);
 
-void lp_log_header(tw_lp *, const struct state *);
-void lp_log(const char *,
-	    tw_lp *,
-	    const struct state *,
-	    const struct message *);
 tw_lpid transition_select(tw_lp *,
 			  const struct transition *,
 			  tw_lpid,
