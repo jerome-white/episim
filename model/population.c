@@ -158,18 +158,20 @@ struct population p_sample(tw_lp *lp,
 			   unsigned int k) {
   int
     i,
-    remaining,
-    people;
+    people,
+    selection,
+    compartment;
   struct population sample = {0};
 
   people = p_total(p);
+
   for (; k; k--) {
-    people = tw_rand_unif(lp->rng) * people;
+    selection = tw_rand_unif(lp->rng) * people;
     for (i = 0; i < __HEALTH_COMPARTMENTS; i++) {
-      remaining -= people;
-      if (remaining < 0) {
-	sample.health[i] += 1;
-	break;
+      selection -= p->health[i];
+      if (selection <= 0) {
+        sample.health[i] += 1;
+        break;
       }
     }
   }
