@@ -86,7 +86,7 @@ void forward_event_handler(struct state *s,
       bf->c0 = 1;
 
       m->people = p_sample(lp, &s->people, 1); // Okay to write to m?
-      assert(!p_empty(&people));
+      assert(!p_empty(&m->people));
       m->rng_calls += 1;
       s->people = p_decrease(&s->people, &people);
 
