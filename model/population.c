@@ -153,7 +153,7 @@ bool p_empty(const struct population *p) {
   return p_total(p) == 0;
 }
 
-struct population p_sample(tw_lp *lp,
+struct population p_sample(tw_rng_stream *g,
 			   const struct population *p,
 			   unsigned int k) {
   int
@@ -166,7 +166,7 @@ struct population p_sample(tw_lp *lp,
   people = p_total(p);
 
   for (; k; k--) {
-    selection = tw_rand_unif(lp->rng) * people;
+    selection = tw_rand_unif(g) * people;
     for (i = 0; i < __HEALTH_COMPARTMENTS; i++) {
       selection -= p->health[i];
       if (selection <= 0) {
@@ -179,9 +179,7 @@ struct population p_sample(tw_lp *lp,
   return sample;
 }
 
-struct population p_exposed(tw_lp *lp,
-			    const struct population *p,
-			    long int *rng_calls) {
+struct population p_exposed(const struct population *p, long int *rng_calls) {
   struct population exposed = {0};
   if (p->health[INFECTED]) {
     exposed.health[SUSCEPTIBLE] = p->health[SUSCEPTIBLE];

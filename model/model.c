@@ -91,11 +91,11 @@ void forward_event_handler(struct state *s,
     break;
   case MOVEMENT_DEPARTURE_EVENT:
     m->rng_calls = 0;
-    lpid = transition_select(lp, s->movement, __tiles, &m->rng_calls);
+    lpid = transition_select(lp->rng, s->movement, __tiles, &m->rng_calls);
     if (lpid < __tiles) {
       bf->c0 = 1;
 
-      m->people = p_sample(lp, &s->people, 1); // Okay to write to m?
+      m->people = p_sample(lp->rng, &s->people, 1); // Okay to write to m?
       assert(!p_empty(&m->people));
       m->rng_calls += 1;
       s->people = p_decrease(&s->people, &people);
@@ -121,8 +121,8 @@ void forward_event_handler(struct state *s,
 
     msg = (struct message *)tw_event_data(event);
     msg->event = HUMAN_INTERACTION_EVENT;
-    msg->people = p_sample(lp, &s->people, 2);
     msg->rng_calls = 3; // 1 from tw_rand_exponential, 2 from p_sample
+    msg->people = p_sample(lp->rng, &s->people, 2);
 
     tw_event_send(event);
 
@@ -139,7 +139,7 @@ void forward_event_handler(struct state *s,
     break;
   case HUMAN_INTERACTION_EVENT:
     m->rng_calls = 0;
-    people = p_exposed(lp, &people, &m->rng_calls);
+    people = p_exposed(&people, &m->rng_calls);
 
     for (i = 0; i < __HEALTH_COMPARTMENTS; i++) {
       for (j = 0; j < people.health[i]; j++) {

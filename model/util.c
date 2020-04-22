@@ -5,7 +5,7 @@
 
 #include "model.h"
 
-tw_lpid transition_select(tw_lp *lp,
+tw_lpid transition_select(tw_rng_stream *g,
 			  const struct transition *tr,
 			  tw_lpid limit,
 			  long int *rng_calls) {
@@ -18,7 +18,7 @@ tw_lpid transition_select(tw_lp *lp,
     weight += tr[i].mean;
   }
 
-  remaining = tw_rand_unif(lp->rng) * weight;
+  remaining = tw_rand_unif(g) * weight;
   *rng_calls += 1;
 
   for (i = 0; i < limit; i++) {

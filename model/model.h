@@ -82,13 +82,15 @@ struct population p_decrease(const struct population *,
 			     const struct population *);
 struct population p_normalize(const struct population *,
 			      const struct population *);
-struct population p_sample(tw_lp *, const struct population *, unsigned int);
-struct population p_exposed(tw_lp *, const struct population *, long int *);
+struct population p_sample(tw_rng_stream *,
+			   const struct population *,
+			   unsigned int);
+struct population p_exposed(const struct population *, long int *);
 struct population p_person(enum health_t);
 struct population p_right_shift(const struct population *);
 struct population p_left_shift(const struct population *);
 
-tw_lpid transition_select(tw_lp *,
+tw_lpid transition_select(tw_rng_stream *,
 			  const struct transition *,
 			  tw_lpid,
 			  long int *);
