@@ -18,6 +18,8 @@
 #define MOVEMENT_TRAVEL_SPEED 20
 #define MOVEMENT_DWELL_TIME   (HOUR * 8)
 
+#define MORTALITY_RATE 0.034
+
 tw_stime __duration;
 uint64_t __tiles;
 char __config[FNAME_LENGTH];
