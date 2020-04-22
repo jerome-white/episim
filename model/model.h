@@ -70,6 +70,8 @@ tw_peid mapping(tw_lpid);
 
 void ev_trace(struct message *, tw_lp *, char *, int *);
 
+bool p_empty(const struct population *);
+unsigned int p_total(const struct population *);
 struct population p_setup(const char *, struct state *, uint64_t);
 struct population p_increase(const struct population *,
 			     const struct population *);
@@ -78,9 +80,10 @@ struct population p_decrease(const struct population *,
 struct population p_normalize(const struct population *,
 			      const struct population *);
 struct population p_sample(tw_lp *, const struct population *, unsigned int);
-bool p_empty(const struct population *);
-bool p_infectious(const struct population *);
-unsigned int p_total(const struct population *);
+struct population p_exposed(tw_lp *, const struct population *, long int *);
+struct population p_person(enum health_t);
+struct population p_right_shift(const struct population *);
+struct population p_left_shift(const struct population *);
 
 tw_lpid transition_select(tw_lp *,
 			  const struct transition *,
