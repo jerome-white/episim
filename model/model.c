@@ -83,7 +83,9 @@ void forward_event_handler(struct state *s,
     m->rng_calls = 0;
     lpid = transition_select(lp, s->movement, __tiles, &m->rng_calls);
     if (lpid < __tiles) {
-      people = p_sample(lp, &s->people, 1);
+      bf->c0 = 1;
+
+      m->people = p_sample(lp, &s->people, 1); // Okay to write to m?
       assert(!p_empty(&people));
       m->rng_calls += 1;
       s->people = p_decrease(&s->people, &people);
@@ -162,7 +164,8 @@ void forward_event_handler(struct state *s,
     s->people = p_decrease(&s->people, &m->people);
     survival = tw_rand_binomial(lp->rng, 1, 1 - MORTALITY_RATE);
     if (survival) {
-      bf->c1 = 1;
+      bf->c0 = 1;
+
       people = p_right_shift(&m->people);
       s->people = p_increase(&s->people, &people);
 
@@ -198,6 +201,7 @@ void reverse_event_handler(struct state *s,
 			   struct message *m,
 			   tw_lp *lp) {
   int i;
+  struct population people;
 
   for (i = 0; i < m->rng_calls; i++) {
     tw_rand_reverse_unif(lp->rng);
@@ -208,17 +212,26 @@ void reverse_event_handler(struct state *s,
     p_decrease(&s->people, &m->people);
     break;
   case MOVEMENT_DEPARTURE_EVENT:
-    p_increase(&s->people, &m->people);
+    if (bf->c0) {
+      p_increase(&s->people, &m->people);
+    }
     break;
   case MOVEMENT_INTERACTION_EVENT:
     break;
   case HUMAN_INTERACTION_EVENT:
     break;
-  case HUMAN_INFECTION_EVENT:
-    break;
   case HUMAN_RECOVERY_EVENT:
+    s->people = p_increase(&s->people, &m->people);
+    if (bf->c0) {
+      people = p_right_shift(&m->people);
+      s->people = p_decrease(&s->people, &people);
+    }
     break;
+  case HUMAN_INFECTION_EVENT:
   case HUMAN_SUSCEPTIBLE_EVENT:
+    s->people = p_increase(&s->people, &m->people);
+    people = p_right_shift(&m->people);
+    s->people = p_decrease(&s->people, &people);
     break;
   default:
     tw_error(TW_LOC,
