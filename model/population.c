@@ -10,6 +10,10 @@
 
 #define BEFORE_POPULATION 4
 
+/* inline void p_init(struct population *p) { */
+/*   memset((struct population *)&p, 0, sizeof(struct population)); */
+/* } */
+
 struct population p_setup(const char *path, struct state *s, uint64_t nsize) {
   uint8_t i;
   uint16_t
@@ -28,8 +32,8 @@ struct population p_setup(const char *path, struct state *s, uint64_t nsize) {
     *word;
   FILE *fp;
   struct population
-    p_totals,
-    p_counts;
+    p_totals = {0},
+    p_counts = {0};
   struct transition *trans;
 
   /*
@@ -44,9 +48,7 @@ struct population p_setup(const char *path, struct state *s, uint64_t nsize) {
   /*
    *
    */
-  memset((struct population *)&p_totals, 0, sizeof(struct population));
-  memset((struct population *)&p_counts, 0, sizeof(struct population));
-  
+
   /*
    *
    */
@@ -166,11 +168,9 @@ struct population p_sample(tw_lp *lp,
     i,
     remaining,
     people;
-  struct population sample;
+  struct population sample = {0};
 
   people = p_total(p);
-  memset((struct population *)&sample, 0, sizeof(struct population));
-
   for (; k; k--) {
     people = tw_rand_unif(lp->rng) * people;
     for (i = 0; i < __HEALTH_COMPARTMENTS; i++) {
@@ -185,6 +185,44 @@ struct population p_sample(tw_lp *lp,
   return sample;
 }
 
-bool p_infectious(const struct population *p) {
-  return p->health[SUSCEPTIBLE] && (p->health[EXPOSED] || p->health[INFECTED]);
+struct population p_exposed(tw_lp *lp,
+			    const struct population *p,
+			    long int *rng_calls) {
+  struct population exposed = {0};
+  if (p->health[INFECTED]) {
+    exposed.health[SUSCEPTIBLE] = p->health[SUSCEPTIBLE];
+  }
+
+  return exposed;
+}
+
+struct population p_person(enum health_t compartment) {
+  struct population p = {0};
+  p.health[compartment] = 1;
+
+  return p;
+}
+
+struct population p_right_shift(const struct population *p) {
+  int i, j;
+  struct population shift;
+
+  for (i = 0; i < __HEALTH_COMPARTMENTS; i++) {
+    j = (i + 1) % __HEALTH_COMPARTMENTS;
+    shift.health[j] = p->health[i];
+  }
+
+  return shift;
+}
+
+struct population p_left_shift(const struct population *p) {
+  int i, j;
+  struct population shift;
+
+  for (i = 0; i < __HEALTH_COMPARTMENTS; i++) {
+    j = (i - 1) % __HEALTH_COMPARTMENTS;
+    shift.health[j] = p->health[i];
+  }
+
+  return shift;
 }
