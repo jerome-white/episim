@@ -29,9 +29,8 @@ void pre_run(struct state *s, tw_lp *lp) {
   tw_stime ts;
   tw_event *event;
   struct message *msg;
-  struct population travelers;
+  struct population travelers = {0};
 
-  memset((struct population *)&travelers, 0, sizeof(struct population));
   travelers.health[SUSCEPTIBLE] = 1;
 
   for (i = 0; i < s->people.health[SUSCEPTIBLE]; i++) {
