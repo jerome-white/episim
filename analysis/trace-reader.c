@@ -19,9 +19,7 @@ int main(int argc, char **argv, char **env) {
   FILE *fp;
   size_t len;
   struct metadata line;
-  struct observation data;
-
-  data.size = 0;
+  struct observation data = {0};
 
   fp = fopen(argv[1], "r");
   if (fp == NULL) {
@@ -48,7 +46,7 @@ int main(int argc, char **argv, char **env) {
       data.size = line.model_data_size;
       data.value = (char *)realloc((char *)data.value, data.size);
     }
-    len = fread(data.value, 1, data.size, fp);
+    len = fread(data.value, sizeof(char), data.size, fp);
     //data.value[len] = '\0';
     printf(",%s\n", data.value);
   }
