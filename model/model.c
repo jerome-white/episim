@@ -91,26 +91,28 @@ void forward_event_handler(struct state *s,
     m->rng_calls = 0;
     lpid = transition_select(lp->rng, s->movement, __tiles, &m->rng_calls);
     if (lpid < __tiles) {
-      bf->c0 = 1;
-
       m->people = p_sample(lp->rng, &s->people, 1); // Okay to write to m?
-      assert(!p_empty(&m->people));
+      assert(!p_empty(&m->people) || !p_empty(&s->people));
       m->rng_calls += 1;
-      s->people = p_decrease(&s->people, &people);
 
-      distance = s->movement[lpid].distance;
-      speed = tw_rand_exponential(lp->rng, MOVEMENT_TRAVEL_SPEED);
-      ts = tw_rand_exponential(lp->rng, distance / speed);
-      m->rng_calls += 2;
+      if (!p_empty(&m->people)) {
+	bf->c0 = 1;
+	s->people = p_decrease(&s->people, &people);
 
-      event = tw_event_new(lpid, ts, lp);
+	distance = s->movement[lpid].distance;
+	speed = tw_rand_exponential(lp->rng, MOVEMENT_TRAVEL_SPEED);
+	ts = tw_rand_exponential(lp->rng, distance / speed);
+	m->rng_calls += 2;
 
-      msg = (struct message *)tw_event_data(event);
-      msg->event = MOVEMENT_ARRIVAL_EVENT;
-      msg->rng_calls = m->rng_calls;
-      msg->people = people;
+	event = tw_event_new(lpid, ts, lp);
 
-      tw_event_send(event);
+	msg = (struct message *)tw_event_data(event);
+	msg->event = MOVEMENT_ARRIVAL_EVENT;
+	msg->rng_calls = m->rng_calls;
+	msg->people = people;
+
+	tw_event_send(event);
+      }
     }
     break;
   case MOVEMENT_INTERACTION_EVENT:
