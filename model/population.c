@@ -10,10 +10,6 @@
 
 #define BEFORE_POPULATION 4
 
-/* inline void p_init(struct population *p) { */
-/*   memset((struct population *)&p, 0, sizeof(struct population)); */
-/* } */
-
 struct population p_setup(const char *path, struct state *s, uint64_t nsize) {
   uint8_t i;
   uint16_t
@@ -44,10 +40,6 @@ struct population p_setup(const char *path, struct state *s, uint64_t nsize) {
     fprintf(stderr, "%s\n", strerror(errno));
     exit(EXIT_FAILURE);
   }
-
-  /*
-   *
-   */
 
   /*
    *
