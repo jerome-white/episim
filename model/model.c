@@ -25,26 +25,30 @@ void init(struct state *s, tw_lp *lp) {
 }
 
 void pre_run(struct state *s, tw_lp *lp) {
-  int i;
+  int i, j;
   tw_stime ts;
   tw_event *event;
   struct message *msg;
-  struct population travelers = {0};
+  struct population people = {0};
 
-  travelers.health[SUSCEPTIBLE] = 1;
+  // Schedule individual departure events
+  for (i = 0; i < __HEALTH_COMPARTMENTS; i++) {
+    people.health[i] = 1;
+    for (j = 0; j < s->people.health[i]; j++) {
+      ts = tw_rand_exponential(lp->rng, MOVEMENT_DWELL_TIME);
+      event = tw_event_new(lp->gid, ts, lp);
 
-  for (i = 0; i < s->people.health[SUSCEPTIBLE]; i++) {
-    ts = tw_rand_exponential(lp->rng, MOVEMENT_DWELL_TIME);
-    event = tw_event_new(lp->gid, ts, lp);
+      msg = (struct message *)tw_event_data(event);
+      msg->event = MOVEMENT_DEPARTURE_EVENT;
+      msg->rng_calls = 1;
+      msg->people = people;
 
-    msg = (struct message *)tw_event_data(event);
-    msg->event = MOVEMENT_DEPARTURE_EVENT;
-    msg->rng_calls = 1;
-    msg->people = travelers;
-
-    tw_event_send(event);
+      tw_event_send(event);
+    }
+    people.health[i] = 0;
   }
 
+  // Schedule the interaction event engine
   ts = tw_rand_exponential(lp->rng, MINUTE);
   event = tw_event_new(lp->gid, ts, lp);
   msg = (struct message *)tw_event_data(event);
