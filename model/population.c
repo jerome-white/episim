@@ -138,7 +138,7 @@ struct population p_decrease(const struct population *lhs,
 struct population p_normalize(const struct population *lhs,
 			      const struct population *rhs) {
   int i;
-  double denom;
+  uint64_t denom;
   struct population p;
 
   for (i = 0; i < __HEALTH_COMPARTMENTS; i++) {
@@ -193,6 +193,7 @@ struct population p_sample(tw_rng_stream *g,
 
 struct population p_exposed(const struct population *p, uint16_t *rng_calls) {
   struct population exposed = {0};
+
   if (p->health[INFECTED]) {
     exposed.health[SUSCEPTIBLE] = p->health[SUSCEPTIBLE];
   }
@@ -202,6 +203,7 @@ struct population p_exposed(const struct population *p, uint16_t *rng_calls) {
 
 struct population p_person(enum health_t compartment) {
   struct population p = {0};
+
   p.health[compartment] = 1;
 
   return p;
