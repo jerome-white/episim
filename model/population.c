@@ -1,3 +1,4 @@
+#include <math.h>
 #include <stdio.h>
 #include <errno.h>
 #include <stdlib.h>
@@ -94,7 +95,7 @@ struct population p_setup(const char *path, struct state *s, uint64_t nsize) {
 	assert(0 <= index);
 	assert(index < __HEALTH_COMPARTMENTS);
 
-	p_totals.health[index] += atof(word);
+	p_totals.health[index] += lround(atof(word));
 	p_counts.health[index] += 1;
 	break;
       }
@@ -142,7 +143,8 @@ struct population p_normalize(const struct population *lhs,
 
   for (i = 0; i < __HEALTH_COMPARTMENTS; i++) {
     denom = rhs->health[i];
-    p.health[i] = (denom == 0) ? 0 : lhs->health[i] / denom;
+    p.health[i] = (denom == 0) ?
+      0 : llround((long double)lhs->health[i] / (long double)denom);
   }
 
   return p;

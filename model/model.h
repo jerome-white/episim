@@ -43,11 +43,11 @@ enum health_t {
   SUSCEPTIBLE,
   INFECTED,
   RECOVERED,
-  __HEALTH_COMPARTMENTS,
+  __HEALTH_COMPARTMENTS, // should be last!
 };
 
 struct population {
-  double health[__HEALTH_COMPARTMENTS];
+  uint64_t health[__HEALTH_COMPARTMENTS];
 };
 
 struct transition {
