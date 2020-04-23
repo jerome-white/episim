@@ -64,9 +64,7 @@ void forward_event_handler(struct state *s,
 			   tw_bf *bf,
 			   struct message *m,
 			   tw_lp *lp) {
-  int i, j;
-  unsigned int rng_calls;
-  double distance, speed, survival;
+  uint16_t rng_calls;
   tw_lpid lpid;
   tw_stime ts;
   tw_event *event;
@@ -76,74 +74,84 @@ void forward_event_handler(struct state *s,
   memset((tw_bf *)bf, 0, sizeof(tw_bf));
 
   switch (m->event) {
-  case MOVEMENT_ARRIVAL_EVENT:
+  case MOVEMENT_ARRIVAL_EVENT: {
     msg = (struct message *)tw_event_data(event);
     s->people = p_increase(&s->people, &m->people);
 
-    ts = tw_rand_exponential(lp->rng, MOVEMENT_DWELL_TIME);
-    m->rng_calls = 1;
+    ts = tw_rand_unif(lp->rng) * MOVEMENT_DWELL_TIME;
     event = tw_event_new(lp->gid, ts, lp);
 
     msg = (struct message *)tw_event_data(event);
     msg->event = MOVEMENT_DEPARTURE_EVENT;
     msg->people = m->people;
+    msg->rng_calls = 1;
 
     tw_event_send(event);
-
     break;
-  case MOVEMENT_DEPARTURE_EVENT:
-    m->rng_calls = 0;
-    lpid = transition_select(lp->rng, s->movement, __tiles, &m->rng_calls);
-    if (lpid < __tiles) {
-      m->people = p_sample(lp->rng, &s->people, 1); // Okay to write to m?
-      assert(!p_empty(&m->people) || !p_empty(&s->people));
-      m->rng_calls += 1;
+  }
+  case MOVEMENT_DEPARTURE_EVENT: {
+    double distance, speed;
 
-      if (!p_empty(&m->people)) {
+    rng_calls = 0;
+    lpid = transition_select(lp->rng, s->movement, __tiles, &rng_calls);
+    if (lpid < __tiles) {
+      people = p_sample(lp->rng, &s->people, 1); // Okay to write to m?
+      assert(!p_empty(&people) || !p_empty(&s->people));
+      rng_calls += 1;
+
+      if (!p_empty(&people)) {
 	bf->c0 = 1;
 	s->people = p_decrease(&s->people, &people);
 
 	distance = s->movement[lpid].distance;
 	speed = tw_rand_exponential(lp->rng, MOVEMENT_TRAVEL_SPEED);
 	ts = tw_rand_exponential(lp->rng, distance / speed);
-	m->rng_calls += 2;
+	rng_calls += 2;
 
 	event = tw_event_new(lpid, ts, lp);
 
 	msg = (struct message *)tw_event_data(event);
 	msg->event = MOVEMENT_ARRIVAL_EVENT;
-	msg->rng_calls = m->rng_calls;
+	msg->rng_calls = rng_calls;
 	msg->people = people;
 
 	tw_event_send(event);
       }
     }
     break;
-  case MOVEMENT_INTERACTION_EVENT:
-    ts = tw_rand_exponential(lp->rng, MINUTE);
-    event = tw_event_new(lp->gid, ts, lp);
+  }
+  case MOVEMENT_INTERACTION_EVENT: {
+    double speed;
+    tw_event *e1, *e2;
 
-    msg = (struct message *)tw_event_data(event);
+    // Calculate and schedule the interaction
+    ts = tw_rand_unif(lp->rng) * MINUTE;
+    e1 = tw_event_new(lp->gid, ts, lp);
+
+    msg = (struct message *)tw_event_data(e1);
     msg->event = HUMAN_INTERACTION_EVENT;
-    msg->rng_calls = 3; // 1 from tw_rand_exponential, 2 from p_sample
+    msg->rng_calls = 1;
     msg->people = p_sample(lp->rng, &s->people, 2);
 
-    tw_event_send(event);
+    tw_event_send(e1);
 
-    // Schedule another interaction
-    speed = 1 / p_total(&s->people);
-    ts = tw_rand_exponential(lp->rng, speed * HOUR);
-    event = tw_event_new(lp->gid, ts, lp);
+    // Ensure the engine resumes
+    /* speed = 1000 / p_total(&s->people); */
+    ts = tw_rand_exponential(lp->rng, MINUTE);
+    e2 = tw_event_new(lp->gid, ts, lp);
 
-    msg = (struct message *)tw_event_data(event);
+    msg = (struct message *)tw_event_data(e2);
     msg->event = MOVEMENT_INTERACTION_EVENT;
-    msg->rng_calls = 1;
+    msg->rng_calls = 3; // 1 from tw_rand_integer, 2 from p_sample
 
-    tw_event_send(event);
+    tw_event_send(e2);
     break;
-  case HUMAN_INTERACTION_EVENT:
-    m->rng_calls = 0;
-    people = p_exposed(&people, &m->rng_calls);
+  }
+  case HUMAN_INTERACTION_EVENT: {
+    int i, j;
+
+    rng_calls = 0;
+    people = p_exposed(&m->people, &rng_calls);
 
     for (i = 0; i < __HEALTH_COMPARTMENTS; i++) {
       for (j = 0; j < people.health[i]; j++) {
@@ -152,19 +160,20 @@ void forward_event_handler(struct state *s,
 
 	msg = (struct message *)tw_event_data(event);
 	msg->event = HUMAN_INFECTION_EVENT;;
-	msg->rng_calls = m->rng_calls + 1; // p_exposed + rand_exponential
+	msg->rng_calls = rng_calls + 1; // p_exposed + rand_exponential
 	msg->people = p_person(i);
 
 	tw_event_send(event);
       }
     }
     break;
-  case HUMAN_INFECTION_EVENT:
+  }
+  case HUMAN_INFECTION_EVENT: {
     s->people = p_decrease(&s->people, &m->people);
     people = p_right_shift(&m->people);
     s->people = p_increase(&s->people, &people);
 
-    ts = tw_rand_exponential(lp->rng, 10 * DAY);
+    ts = tw_rand_exponential(lp->rng, INFECTION_DURATION);
     event = tw_event_new(lp->gid, ts, lp);
 
     msg = (struct message *)tw_event_data(event);
@@ -174,7 +183,10 @@ void forward_event_handler(struct state *s,
 
     tw_event_send(event);
     break;
-  case HUMAN_RECOVERY_EVENT:
+  }
+  case HUMAN_RECOVERY_EVENT: {
+    double survival;
+
     s->people = p_decrease(&s->people, &m->people);
     survival = tw_rand_binomial(lp->rng, 1, 1 - MORTALITY_RATE);
     if (survival) {
@@ -183,7 +195,7 @@ void forward_event_handler(struct state *s,
       people = p_right_shift(&m->people);
       s->people = p_increase(&s->people, &people);
 
-      ts = tw_rand_exponential(lp->rng, 5 * DAY);
+      ts = tw_rand_exponential(lp->rng, RECOVERY_TIME);
       event = tw_event_new(lp->gid, ts, lp);
       msg = (struct message *)tw_event_data(event);
 
@@ -194,11 +206,13 @@ void forward_event_handler(struct state *s,
       tw_event_send(event);
     }
     break;
-  case HUMAN_SUSCEPTIBLE_EVENT:
+  }
+  case HUMAN_SUSCEPTIBLE_EVENT: {
     s->people = p_decrease(&s->people, &m->people);
     people = p_right_shift(&m->people);
     s->people = p_increase(&s->people, &people);
     break;
+  }
   default:
     tw_error(TW_LOC,
 	     "[%d APP_ERROR]: Invalid method name: (%d)",
