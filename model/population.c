@@ -10,6 +10,16 @@
 
 #define BEFORE_POPULATION 4
 
+void p_printf(char *buffer, const struct population *p) {
+  sprintf(buffer,
+	  "%lu,%lu,%lu",
+	  p->health[SUSCEPTIBLE],
+	  p->health[INFECTED],
+	  p->health[RECOVERED]);
+
+  return;
+}
+
 struct population p_setup(const char *path, struct state *s, uint64_t nsize) {
   uint8_t i;
   uint16_t

@@ -78,6 +78,7 @@ tw_peid mapping(tw_lpid);
 void ev_trace(struct message *, tw_lp *, char *, int *);
 void model_stat(struct state *, tw_lp *, char *);
 
+void p_printf(char *, const struct population *);
 bool p_empty(const struct population *);
 unsigned int p_total(const struct population *);
 struct population p_setup(const char *, struct state *, uint64_t);
