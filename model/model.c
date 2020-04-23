@@ -35,7 +35,7 @@ void pre_run(struct state *s, tw_lp *lp) {
   for (i = 0; i < __HEALTH_COMPARTMENTS; i++) {
     people.health[i] = 1;
     for (j = 0; j < s->people.health[i]; j++) {
-      ts = tw_rand_exponential(lp->rng, MOVEMENT_DWELL_TIME);
+      ts = tw_rand_unif(lp->rng) * MOVEMENT_DWELL_TIME;
       event = tw_event_new(lp->gid, ts, lp);
 
       msg = (struct message *)tw_event_data(event);
