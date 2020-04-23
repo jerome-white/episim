@@ -179,7 +179,7 @@ struct population p_sample(tw_rng_stream *g,
   return sample;
 }
 
-struct population p_exposed(const struct population *p, long int *rng_calls) {
+struct population p_exposed(const struct population *p, uint16_t *rng_calls) {
   struct population exposed = {0};
   if (p->health[INFECTED]) {
     exposed.health[SUSCEPTIBLE] = p->health[SUSCEPTIBLE];
