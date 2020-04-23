@@ -11,23 +11,28 @@
 /*
  * Standard concepts of time. We assume a clock-tick is one minute
  */
-#define MINUTE 1
+#define SECOND 1000
+#define MINUTE (SECOND * 60)
 #define HOUR   (MINUTE * 60)
-#define DAY    (HOUR * 24)
+#define DAY    (HOUR   * 24)
 
 #define MOVEMENT_TRAVEL_SPEED 20
 #define MOVEMENT_DWELL_TIME   (HOUR * 8)
 
 #define MORTALITY_RATE 0.034
+#define RECOVERY_TIME (5 * DAY)
+#define INFECTION_DURATION (8 * DAY)
 
 tw_stime __duration;
 uint64_t __tiles;
 char __config[FNAME_LENGTH];
 
 enum event_t {
+  //
   MOVEMENT_ARRIVAL_EVENT,
   MOVEMENT_DEPARTURE_EVENT,
   MOVEMENT_INTERACTION_EVENT,
+  //
   HUMAN_INTERACTION_EVENT,
   HUMAN_INFECTION_EVENT,
   HUMAN_RECOVERY_EVENT,
