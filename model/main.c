@@ -38,7 +38,7 @@ st_model_types tracers[] = {
 const tw_optdef options[] = {
   TWOPT_GROUP("Compartmental infectious disease modelling"),
 
-  TWOPT_UINT("tiles", __tiles, "Number of homes"),
+  TWOPT_UINT("tiles", __tiles, "Number of locations"),
   TWOPT_CHAR("config", __config, "Configuration file"),
   TWOPT_DOUBLE("duration", __duration, "Duration of simlulation (days)"),
 
