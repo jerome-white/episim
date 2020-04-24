@@ -22,7 +22,6 @@ struct observation {
 
 int main(int argc, char **argv, char **env) {
   FILE *fp;
-  size_t nmemb;
   struct metadata line;
   struct observation data = {0};
 
@@ -60,8 +59,7 @@ int main(int argc, char **argv, char **env) {
 
     if (line.model_size > data.size) {
       data.size = line.model_size;
-      nmemb = sizeof(char) * data.size;
-      data.value = (char *)realloc((char *)data.value, nmemb);
+      data.value = (char *)realloc((char *)data.value, data.size);
       if (data.value == NULL) {
         fprintf(stderr, "%s\n", strerror(errno));
         exit(EXIT_FAILURE);
