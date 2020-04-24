@@ -22,7 +22,7 @@ struct observation {
 
 int main(int argc, char **argv, char **env) {
   FILE *fp;
-  size_t len;
+  size_t nmemb;
   struct metadata line;
   struct observation data = {0};
 
@@ -32,36 +32,42 @@ int main(int argc, char **argv, char **env) {
     exit(EXIT_FAILURE);
   }
 
-  /*
-  printf("source,"
-	 "destination,"
-	 "sent,"
-	 "event,"
-	 "susceptible,"
-	 "exposed,"
-	 "infected,"
-	 "recovered\n");
-  */
+  printf("sample_type,"
+         "sample_size,"
+         "virtual_time,"
+         "real_time,"
+         "pe,"
+         "kp,"
+         "lp,"
+         "gvt,"
+         "stats_type,"
+         "susceptible,"
+         "infected,"
+         "recovered\n");
 
   while (!feof(fp)) {
     fread(&line, sizeof(struct metadata), 1, fp);
-    printf("%i,%i,%f,%f,%u,%u,%u,%f,%i,%i",
-	   line.sample_type,
-	   line.sample_size,
-	   line.virtual_time,
-	   line.real_time,
-	   line.pe_id,
-	   line.kp_id,
-	   line.lp_id,
-	   line.gvt,
-	   line.stats_type,
-	   line.model_size);
+    printf("%i,%i,%f,%f,%u,%u,%u,%f,%i",
+           line.sample_type,
+           line.sample_size,
+           line.virtual_time,
+           line.real_time,
+           line.pe_id,
+           line.kp_id,
+           line.lp_id,
+           line.gvt,
+           line.stats_type);
+
     if (line.model_size > data.size) {
       data.size = line.model_size;
-      data.value = (char *)realloc((char *)data.value, 1 * sizeof(char));
+      nmemb = sizeof(char) * data.size;
+      data.value = (char *)realloc((char *)data.value, nmemb);
+      if (data.value == NULL) {
+        fprintf(stderr, "%s\n", strerror(errno));
+        exit(EXIT_FAILURE);
+      }
     }
-    len = fread(data.value, sizeof(char), data.size, fp);
-    //data.value[len] = '\0';
+    fread(data.value, sizeof(char), data.size, fp);
     printf(",%s\n", data.value);
   }
   fclose(fp);
