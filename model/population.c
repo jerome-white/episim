@@ -95,7 +95,7 @@ struct population p_setup(const char *path, struct state *s, uint64_t nsize) {
 	assert(0 <= index);
 	assert(index < __HEALTH_COMPARTMENTS);
 
-	p_totals.health[index] += lround(atof(word));
+	p_totals.health[index] += llround(atof(word));
 	p_counts.health[index] += 1;
 	break;
       }
@@ -126,10 +126,13 @@ struct population p_increase(const struct population *lhs,
 struct population p_decrease(const struct population *lhs,
 			     const struct population *rhs) {
   int i;
+  person_t x, y;
   struct population p;
 
   for (i = 0; i < __HEALTH_COMPARTMENTS; i++) {
-    p.health[i] = lhs->health[i] - rhs->health[i];
+    x = lhs->health[i];
+    y = rhs->health[i];
+    p.health[i] = (x > y) ? x - y : 0;
   }
 
   return p;
@@ -138,24 +141,30 @@ struct population p_decrease(const struct population *lhs,
 struct population p_normalize(const struct population *lhs,
 			      const struct population *rhs) {
   int i;
-  uint64_t denom;
+  person_t numer, denom;
   struct population p;
 
   for (i = 0; i < __HEALTH_COMPARTMENTS; i++) {
-    denom = rhs->health[i];
-    p.health[i] = (denom == 0) ?
-      0 : llround((long double)lhs->health[i] / (long double)denom);
+    numer = (long double)lhs->health[i];
+    denom = (long double)rhs->health[i];
+    p.health[i] = (denom) ? llround(numer / denom) : 0;
   }
 
   return p;
 }
 
-unsigned int p_total(const struct population *p) {
+person_t p_total(const struct population *p) {
   int i;
-  unsigned int people;
+  bool overflow;
+  person_t person, people;
 
   for (i = 0, people = 0; i < __HEALTH_COMPARTMENTS; i++) {
-    people += p->health[i];
+    person = p->health[i];
+    if (people > UINT64_MAX -  person) {
+      fprintf(stderr, "Potential overflow detected in population accumlate");
+      exit(EXIT_FAILURE);
+    }
+    people += person;
   }
 
   return people;
