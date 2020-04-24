@@ -46,8 +46,10 @@ enum health_t {
   __HEALTH_COMPARTMENTS, // should be last!
 };
 
+typedef uint64_t person_t;
+
 struct population {
-  uint64_t health[__HEALTH_COMPARTMENTS];
+  person_t health[__HEALTH_COMPARTMENTS];
 };
 
 struct transition {
@@ -80,7 +82,7 @@ void model_stat(struct state *, tw_lp *, char *);
 
 void p_printf(char *, const struct population *);
 bool p_empty(const struct population *);
-unsigned int p_total(const struct population *);
+uint64_t p_total(const struct population *);
 struct population p_setup(const char *, struct state *, uint64_t);
 struct population p_increase(const struct population *,
 			     const struct population *);
