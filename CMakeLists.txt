@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
+project(EPISim)
 
 set (RD "${CMAKE_CURRENT_SOURCE_DIR}/ROSS/")
 set (MD "${CMAKE_CURRENT_SOURCE_DIR}/model/")
