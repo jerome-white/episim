@@ -19,9 +19,9 @@
 #define MOVEMENT_TRAVEL_SPEED 20
 #define MOVEMENT_DWELL_TIME   (HOUR * 8)
 
-#define MORTALITY_RATE 0.034
-#define RECOVERY_TIME (5 * DAY)
-#define INFECTION_DURATION (8 * DAY)
+#define MORTALITY_RATE     0.034
+#define RECOVERY_TIME      (DAY * 10)
+#define INFECTION_DURATION (DAY * 8)
 
 tw_stime __duration;
 uint64_t __tiles;
