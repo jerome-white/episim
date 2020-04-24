@@ -5,6 +5,7 @@ from argparse import ArgumentParser
 
 import pandas as pd
 import matplotlib.pyplot as plt
+import matplotlib.ticker as mtick
 
 class TimeConversion:
     def __init__(self, rtime):
@@ -32,16 +33,32 @@ df = (pd
       .read_csv(sys.stdin, usecols=usecols)
       .assign(offset=TimeConversion(rtime)))
 
+gridspec_kw = {
+    'hspace': 0.1,
+    'height_ratios': [1, 0.25],
+}
+
 for (n, g) in df.groupby(by, sort=False):
-    fig = plt.gcf()
+    (fig, (top, bottom)) = plt.subplots(nrows=2,
+                                        sharex=True,
+                                        gridspec_kw=gridspec_kw)
+
     view = (g
             .drop(columns=[rtime, by])
             .set_index('offset')
             .sort_index())
-    view.plot(grid=True, title=n)
+    view.plot(grid=True, ax=top)
+
+    view = (view
+            .sum(axis='columns')
+            .pct_change()
+            .fillna(0))
+    view.plot(grid=True, ax=bottom)
+    bottom.yaxis.set_major_formatter(mtick.PercentFormatter(xmax=1))
 
     fname = args.output.joinpath('{:04d}'.format(n)).with_suffix('.png')
     plt.xlabel('Days')
     plt.ylabel('People')
+    plt.suptitle('Tile {}'.format(n))
     plt.savefig(fname)
     plt.close(fig)
