@@ -1,4 +1,6 @@
+import os
 import sys
+import logging
 from scipy import constants
 from pathlib import Path
 from argparse import ArgumentParser
@@ -6,6 +8,13 @@ from argparse import ArgumentParser
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mtick
+
+lvl = os.environ.get('PYTHONLOGLEVEL', 'WARNING').upper()
+fmt = '[ %(asctime)s %(levelname)s %(process)d ] %(message)s'
+logging.basicConfig(format=fmt,
+                    datefmt="%d %H:%M:%S",
+                    level=lvl)
+logging.getLogger('matplotlib').setLevel(logging.CRITICAL)
 
 class TimeConversion:
     def __init__(self, rtime):
