@@ -63,7 +63,6 @@ def func(queue, by, rtime, output):
         queue.task_done()
 
 arguments = ArgumentParser()
-arguments.add_argument('--master', type=int, default=0)
 arguments.add_argument('--output', type=Path)
 arguments.add_argument('--workers', type=int)
 args = arguments.parse_args()
