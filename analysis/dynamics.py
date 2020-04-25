@@ -51,9 +51,11 @@ for (n, g) in df.groupby(by, sort=False):
 
     view = (view
             .sum(axis='columns')
-            .pct_change()
-            .fillna(0))
-    view.plot(grid=True, ax=bottom)
+            .to_frame()
+            .apply(lambda x: (x - x.iloc[0]) / x.iloc[0]))
+    view.plot(grid=True,
+              legend=False,
+              ax=bottom)
     bottom.yaxis.set_major_formatter(mtick.PercentFormatter(xmax=1))
 
     fname = args.output.joinpath('{:04d}'.format(n)).with_suffix('.png')
