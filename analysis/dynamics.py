@@ -68,6 +68,10 @@ arguments.add_argument('--output', type=Path)
 arguments.add_argument('--workers', type=int)
 args = arguments.parse_args()
 
+if args.output is None or not args.output.is_dir():
+    logging.critical('output={} does not exist'.format(args.output))
+    sys.exit(os.EX_OSFILE)
+
 by = 'lp'
 rtime = 'virtual_time'
 queue = JoinableQueue()
