@@ -1,12 +1,12 @@
 import os
 import sys
 import logging
-from scipy import constants
 from pathlib import Path
 from argparse import ArgumentParser
 from multiprocessing import Pool, JoinableQueue
 
 import pandas as pd
+from scipy import constants
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mtick
 
