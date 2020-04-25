@@ -48,19 +48,18 @@ for (n, g) in df.groupby(by, sort=False):
             .set_index('offset')
             .sort_index())
     view.plot(grid=True, ax=top)
+    top.set_ylabel('People')
 
     view = (view
             .sum(axis='columns')
             .to_frame()
             .apply(lambda x: (x - x.iloc[0]) / x.iloc[0]))
-    view.plot(grid=True,
-              legend=False,
-              ax=bottom)
+    view.plot(grid=True, legend=False, ax=bottom)
     bottom.yaxis.set_major_formatter(mtick.PercentFormatter(xmax=1))
+    bottom.set_ylabel('Pop. chg')
 
     fname = args.output.joinpath('{:04d}'.format(n)).with_suffix('.png')
     plt.xlabel('Days')
-    plt.ylabel('People')
     plt.suptitle('Tile {}'.format(n))
     plt.savefig(fname)
     plt.close(fig)
