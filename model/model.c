@@ -92,31 +92,30 @@ void forward_event_handler(struct state *s,
   case MOVEMENT_DEPARTURE_EVENT: {
     double distance, speed;
 
-    rng_calls = 0;
-    lpid = transition_select(lp->rng, s->movement, __tiles, &rng_calls);
-    if (lpid < __tiles) {
-      people = p_sample(lp->rng, &s->people, 1); // Okay to write to m?
-      assert(!p_empty(&people) || !p_empty(&s->people));
-      rng_calls += 1;
+    if (!p_empty(&s->people)) {
+      bf->c0 = 1;
 
-      if (!p_empty(&people)) {
-	bf->c0 = 1;
-	s->people = p_decrease(&s->people, &people);
+      rng_calls = 1;
+      people = p_sample(lp->rng, &s->people, rng_calls); // Okay to write to m?
+      assert(!p_empty(&people));
+      s->people = p_decrease(&s->people, &people);
 
-	distance = s->movement[lpid].distance;
-	speed = tw_rand_exponential(lp->rng, MOVEMENT_TRAVEL_SPEED);
-	ts = tw_rand_exponential(lp->rng, distance / speed);
-	rng_calls += 2;
+      lpid = transition_select(lp->rng, s->movement, __tiles, &rng_calls);
+      lpid = ROSS_MIN(lpid, lp->gid);
 
-	event = tw_event_new(lpid, ts, lp);
+      distance = s->movement[lpid].distance;
+      speed = tw_rand_exponential(lp->rng, MOVEMENT_TRAVEL_SPEED);
+      ts = tw_rand_exponential(lp->rng, distance / speed);
+      rng_calls += 2;
 
-	msg = (struct message *)tw_event_data(event);
-	msg->event = MOVEMENT_ARRIVAL_EVENT;
-	msg->rng_calls = rng_calls;
-	msg->people = people;
+      event = tw_event_new(lpid, ts, lp);
 
-	tw_event_send(event);
-      }
+      msg = (struct message *)tw_event_data(event);
+      msg->event = MOVEMENT_ARRIVAL_EVENT;
+      msg->rng_calls = rng_calls;
+      msg->people = people;
+
+      tw_event_send(event);
     }
     break;
   }
