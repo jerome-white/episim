@@ -78,7 +78,7 @@ void forward_event_handler(struct state *s,
     msg = (struct message *)tw_event_data(event);
     s->people = p_increase(&s->people, &m->people);
 
-    ts = tw_rand_unif(lp->rng) * MOVEMENT_DWELL_TIME;
+    ts = tw_rand_exponential(lp->rng, MOVEMENT_DWELL_TIME);
     event = tw_event_new(lp->gid, ts, lp);
 
     msg = (struct message *)tw_event_data(event);
